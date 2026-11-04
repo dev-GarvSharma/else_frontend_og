@@ -70,7 +70,7 @@ function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 24);
+    const handleScroll = () => setIsScrolled(window.scrollY > 44);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -79,7 +79,7 @@ function Header() {
   return (
     <>
       <div className="sticky top-0 z-50 bg-[#151515]">
-      <header className={`mx-auto flex w-full items-center bg-white px-5 text-[#171717] transition-[min-height,border-radius,box-shadow] duration-700 ease-[cubic-bezier(.22,1,.36,1)] sm:px-8 lg:px-[8.5%] ${isScrolled ? "min-h-[60px] rounded-t-[26px] shadow-[0_8px_24px_rgba(0,0,0,.14)]" : "min-h-[68px] rounded-t-[42px] shadow-[0_4px_18px_rgba(0,0,0,0.04)]"}`}>
+      <header className={`mx-auto flex w-full items-center bg-white px-5 text-[#171717] transition-[min-height,border-radius,box-shadow] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)] sm:px-8 lg:px-[8.5%] ${isScrolled ? "min-h-[60px] rounded-t-[26px] shadow-[0_8px_24px_rgba(0,0,0,.14)]" : "min-h-[68px] rounded-t-[42px] shadow-[0_4px_18px_rgba(0,0,0,0.04)]"}`}>
         <button
           type="button"
           aria-label="Open menu"
