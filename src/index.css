@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+.fest-lacquer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.fest-light-a {
+  background: radial-gradient(ellipse at 18% 50%, rgba(172, 83, 45, .2), transparent 37%);
+}
+
+.fest-light-b {
+  background: radial-gradient(ellipse at 80% 20%, rgba(245, 198, 139, .1), transparent 30%);
+}
+
+.fest-spark { position: absolute; display: block; }
+.fest-glint {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent 15%, rgba(255, 214, 170, .4) 50%, transparent 85%);
+  opacity: .65;
+  animation: fest-glint 9s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.fest-star {
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  color: #ffdaab;
+  opacity: .8;
+  transform: rotate(var(--rotate, 0deg));
+  animation: fest-twinkle 3.8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.fest-star::before, .fest-star::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.fest-star::before { width: 100%; height: 20%; }
+.fest-star::after { width: 20%; height: 100%; }
+.fest-star.small { opacity: .65; }
+
+.fest-marquee-track {
+  animation: fest-marquee 38s linear infinite;
+  will-change: transform;
+}
+
+.fest-slot:hover .fest-marquee-track { animation-play-state: paused; }
+
+@keyframes fest-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fest-glint {
+  0%, 100% { transform: translateX(-35%); opacity: .25; }
+  50% { transform: translateX(35%); opacity: .8; }
+}
+
+@keyframes fest-twinkle {
+  0%, 100% { opacity: .3; scale: .7; }
+  50% { opacity: 1; scale: 1.15; }
+}
+
+@keyframes search-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes search-panel-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px) scaleY(0.98);
+  }
+}
+
+@keyframes search-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes search-backdrop-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.search-overlay-panel {
+  transform-origin: top center;
+  animation: search-panel-enter 360ms cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+.search-overlay-panel.is-closing {
+  animation: search-panel-exit 220ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+.search-overlay-backdrop {
+  animation: search-backdrop-enter 240ms ease-out both;
+}
+.search-overlay-backdrop.is-closing {
+  animation: search-backdrop-exit 220ms ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fest-marquee-track,
+  .fest-glint,
+  .fest-star { animation: none !important; }
+  .search-overlay-panel,
+  .search-overlay-panel.is-closing,
+  .search-overlay-backdrop,
+  .search-overlay-backdrop.is-closing {
+    animation-duration: 1ms;
+  }
+}
