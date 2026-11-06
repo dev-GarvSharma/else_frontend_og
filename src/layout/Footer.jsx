@@ -88,25 +88,11 @@ function Footer() {
             aria-label="Social media links"
           >
             <a
-              href="#instagram"
+              href="https://devgarv.in"
               aria-label="Instagram"
               className="hover:text-white"
             >
-              ◎
-            </a>
-            <a
-              href="#facebook"
-              aria-label="Facebook"
-              className="font-semibold hover:text-white"
-            >
-              f
-            </a>
-            <a
-              href="#pinterest"
-              aria-label="Pinterest"
-              className="font-semibold hover:text-white"
-            >
-              p
+              Designed & Developed by GARV
             </a>
           </div>
           <div className="flex flex-wrap gap-1.5 text-[9px] font-semibold">

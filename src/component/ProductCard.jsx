@@ -9,7 +9,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-const defaultProduct = {
+export const defaultProduct = {
   brand: "CREED",
   name: "Aventus",
   image:
@@ -48,7 +48,10 @@ export default function ProductCard({
   const [isSaved, setIsSaved] = useState(false);
   const item = { ...defaultProduct, ...product };
   const imageUrl = item.image;
-  const formatPrice = (price) => `₹${Number(price).toLocaleString("en-IN")}`;
+  const formatPrice = (price) =>
+    item.currency === "EUR"
+      ? `€${Number(price).toFixed(2)}`
+      : `₹${Number(price).toLocaleString("en-IN")}`;
 
   const toggleWishlist = () => {
     setIsSaved((saved) => !saved);
@@ -73,7 +76,11 @@ export default function ProductCard({
               key={tag}
               className="flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[9px] shadow-sm sm:text-[11px]"
             >
-              {tag === "Bold" ? <Flame size={12} strokeWidth={1.8} /> : <TrendingUp size={12} strokeWidth={1.8} />}
+              {tag === "Bold" ? (
+                <Flame size={12} strokeWidth={1.8} />
+              ) : (
+                <TrendingUp size={12} strokeWidth={1.8} />
+              )}
               {tag}
             </span>
           ))}
@@ -85,7 +92,11 @@ export default function ProductCard({
           aria-pressed={isSaved}
           className={`absolute right-1 top-1 z-20 grid min-h-8 min-w-8 place-items-center rounded-full bg-white/85 text-[20px] text-[#555] shadow-sm transition-transform duration-150 hover:scale-110 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 ${isSaved ? "text-rose-600" : ""}`}
         >
-          <Heart size={18} strokeWidth={1.7} fill={isSaved ? "currentColor" : "none"} />
+          <Heart
+            size={18}
+            strokeWidth={1.7}
+            fill={isSaved ? "currentColor" : "none"}
+          />
         </button>
 
         <div className="relative mx-auto mb-3 mt-12 flex h-32 w-full items-center justify-center sm:mb-4 sm:mt-12 sm:h-40 md:mb-6 md:mt-14 md:h-56">

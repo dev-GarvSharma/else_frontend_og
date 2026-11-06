@@ -1,22 +1,31 @@
 import React from "react";
 import ProductCard from "../component/ProductCard";
+import bannerImage from "../assets/Else Perfume Collection in Gold.png";
 
-export default function Home() {
+function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center bg-[#faf9f6] px-5 py-14 sm:py-20">
-      <div className="mb-8 text-center">
-        <p className="text-[10px] uppercase tracking-[.22em] text-[#93684e]">
-          The ELSE edit
-        </p>
-        <h1 className="mt-2 font-serif text-3xl text-[#24211e] sm:text-4xl">
-          Find your signature scent
-        </h1>
+    <div>
+      <div>
+        <img src={bannerImage} alt="Banner" className="w-full object-cover" />
       </div>
-      <div className="flex flex-wrap justify-center gap-5 sm:gap-6 md:gap-8 lg:gap-10">
-        <ProductCard />
-        <ProductCard />
-        <ProductCard />
+
+      <div className="my-10 px-6 sm:px-10 lg:px-12">
+        <div className="text-center mt-5">
+          <h2 className="text-3xl">
+            Explore Our Fragrances
+          </h2>
+          <p className="mt-2 mb-5">
+            Find your perfect scent by preference
+          </p>
+        </div>
+        <div className="flex gap-3 flex-wrap justify-center">
+          {[...Array(9)].map((_, index) => (
+            <ProductCard key={index} />
+          ))}
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
+
+export default Home;

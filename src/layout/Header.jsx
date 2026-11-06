@@ -80,14 +80,6 @@ function Header() {
     <>
       <div className="sticky top-0 z-50 bg-[#151515]">
       <header className={`mx-auto flex w-full items-center bg-white px-5 text-[#171717] transition-[min-height,border-radius,box-shadow] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)] sm:px-8 lg:px-[8.5%] ${isScrolled ? "min-h-[60px] rounded-t-[26px] shadow-[0_8px_24px_rgba(0,0,0,.14)]" : "min-h-[68px] rounded-t-[42px] shadow-[0_4px_18px_rgba(0,0,0,0.04)]"}`}>
-        <button
-          type="button"
-          aria-label="Open menu"
-          className="mr-4 flex h-9 w-9 items-center justify-center text-xl md:hidden"
-        >
-          ☰
-        </button>
-
         <nav
           aria-label="Main navigation"
           className="hidden items-center gap-6 whitespace-nowrap text-[12px] lg:flex lg:gap-8"
@@ -146,16 +138,16 @@ function Header() {
           >
             <SearchIcon />
           </button>
-          <button type="button" aria-label="Account" className="text-[#222]">
+          <button type="button" aria-label="Account" className="hidden text-[#222] lg:block">
             <UserIcon />
           </button>
-          <button type="button" aria-label="Wishlist" className="text-[#222]">
+          <button type="button" aria-label="Wishlist" className="hidden text-[#222] lg:block">
             <HeartIcon />
           </button>
           <button
             type="button"
             aria-label="Shopping bag"
-            className="relative text-[#222]"
+            className="relative hidden text-[#222] lg:block"
           >
             <BagIcon />
             <span className="absolute -right-[7px] -top-[7px] flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#171717] px-1 text-[9px] font-medium text-white">
