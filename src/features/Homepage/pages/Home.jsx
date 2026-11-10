@@ -125,37 +125,6 @@ const usageSteps = [
   },
 ];
 
-const journalArticles = [
-  {
-    category: "Beauty",
-    title: "Best Perfume for Women: 12 Refined Picks for Your 40s",
-    author: "Scento Editorial Team",
-    date: "July 2, 2026",
-    image:
-      "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=85",
-    imageAlt: "Perfume bottles arranged on a warm, sunlit shelf",
-  },
-  {
-    category: "Beauty",
-    title:
-      "Best Long Lasting Perfumes for Women 2026: 12 All-Day Picks That Beat 8 Hours",
-    author: "Scento Editorial Team",
-    date: "July 11, 2026",
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1000&q=85",
-    imageAlt: "A colorful collection of perfume bottles",
-  },
-  {
-    category: "Guides & How-To",
-    title: "Dior Rouge Trafalgar review: notes, wear time and Esprit",
-    author: "Scento Editorial Team",
-    date: "November 10, 2026",
-    image:
-      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=85",
-    imageAlt: "A fragrance bottle styled for an editorial review",
-  },
-];
-
 const faqs = [
   {
     question: "How do I choose a fragrance that suits me?",
@@ -294,7 +263,7 @@ function Home() {
           </div>
           <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             {blogArticles.map((article) => (
-              <BlogCard key={article.title} article={article} />
+              <BlogCard key={article.slug} article={article} />
             ))}
           </div>
         </div>
