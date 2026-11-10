@@ -3,6 +3,13 @@ import BlogCard from "../../../component/BlogCard";
 import bannerImage from "../../../assets/Else Perfume Collection in Gold.png";
 import { useEffect, useState } from "react";
 import { getAllBlogArticles, getAllCategories, getAllProducts } from "../api";
+import { Link } from "react-router-dom";
+import {
+  BlogCardSkeleton,
+  CategorySkeleton,
+  ProductCardSkeleton,
+  SkeletonGroup,
+} from "../../../component/CardSkeletons";
 
 const categoryImage =
   "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/2baeb436-d003-4cdf-5717-3e34c3515000/public";
@@ -151,8 +158,11 @@ const faqs = [
 function Home() {
   const [category, setCategory] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState(-1);
   const [blogArticles, setBlogArticles] = useState([]);
+  const [blogsLoading, setBlogsLoading] = useState(true);
   const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
   const fetchCategories = async () => {
@@ -161,6 +171,8 @@ function Home() {
       setCategory(response.data.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    } finally {
+      setCategoryLoading(false);
     }
   };
 
@@ -170,6 +182,8 @@ function Home() {
       setProducts(response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
+    } finally {
+      setProductsLoading(false);
     }
   };
 
@@ -179,6 +193,8 @@ function Home() {
       setBlogArticles(response.data.data);
     } catch (error) {
       console.error("Error fetching blog articles:", error);
+    } finally {
+      setBlogsLoading(false);
     }
   };
 
@@ -194,7 +210,11 @@ function Home() {
         aria-label="Shop by category"
         className="flex w-full items-start justify-between gap-3 overflow-x-auto bg-white px-5 py-3 sm:justify-center sm:gap-7 sm:px-8"
       >
-        {category.map((category, index) => (
+        {categoryLoading ? (
+          <SkeletonGroup count={4} className="flex w-full items-start justify-between gap-3 sm:justify-center sm:gap-7">
+            <CategorySkeleton />
+          </SkeletonGroup>
+        ) : category.map((category, index) => (
           <a
             href="perfumes"
             key={category.id}
@@ -231,10 +251,20 @@ function Home() {
           <h2 className="text-3xl">Explore Our Fragrances</h2>
           <p className="mb-5 mt-2">Find your perfect scent by preference</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div
+          className="flex flex-wrap justify-center gap-3"
+          role={productsLoading ? "status" : undefined}
+          aria-label={productsLoading ? "Loading products" : undefined}
+          aria-busy={productsLoading || undefined}
+        >
+          {productsLoading
+            ? Array.from({ length: 3 }, (_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))
+            : products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+          {productsLoading && <span className="sr-only">Loading products…</span>}
         </div>
       </div>
 
@@ -251,18 +281,22 @@ function Home() {
             >
               Our Articles
             </h2>
-            <a
-              href="#journal"
+            <Link
+              to={"/blogs"}
               className="shrink-0 text-[11px] font-medium text-[#383430] transition-colors hover:text-[#9d2532] sm:text-xs"
             >
               Read all articles{" "}
               <span aria-hidden="true" className="ml-1">
                 →
               </span>
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-            {blogArticles.map((article) => (
+            {blogsLoading ? (
+              <SkeletonGroup count={3} className="col-span-full grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                <BlogCardSkeleton />
+              </SkeletonGroup>
+            ) : blogArticles.map((article) => (
               <BlogCard key={article.slug} article={article} />
             ))}
           </div>

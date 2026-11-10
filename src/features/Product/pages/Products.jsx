@@ -4,6 +4,8 @@ import ProductCard from "../../../component/ProductCard";
 import ProductFilter from "../../../component/ProductFilter";
 import productsBanner from "../../../assets/Else_ More Than a Fragrance.png";
 import { getAllProductsList } from "../api";
+import Pagination from "../../../component/Pagination";
+import { ProductCardSkeleton, SkeletonGroup } from "../../../component/CardSkeletons";
 
 const imageBase = "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g";
 
@@ -13,7 +15,10 @@ function note(name, image) {
 
 export default function Products() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -23,11 +28,13 @@ export default function Products() {
         categorySlug: "",
         note: "",
         sort: "popularity",
-        page: 1,
-        recordPerPage: 20,
+        page: page,
+        recordPerPage: limit,
       });
-      const productList = response?.data?.data;
-      setProducts(Array.isArray(productList) ? productList : []);
+      const { data, meta } = response.data;
+      setProducts(Array.isArray(data) ? data : []);
+      setTotalPages(meta.totalPages);
+      setPage(meta.currentPage);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -37,7 +44,7 @@ export default function Products() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [page, limit]);
   return (
     <main className="bg-[#faf9f6] px-4 pb-20 pt-0 text-neutral-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1800px]">
@@ -87,12 +94,22 @@ export default function Products() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-1 sm:gap-3 xl:grid-cols-3 2xl:grid-cols-4">
-              {products.map((product) => (
+              {loading ? (
+                <SkeletonGroup count={limit} className="col-span-full grid grid-cols-2 gap-1 sm:gap-3 xl:grid-cols-3 2xl:grid-cols-4">
+                  <div className="min-w-0 p-1"><ProductCardSkeleton /></div>
+                </SkeletonGroup>
+              ) : products.map((product) => (
                 <div className="min-w-0 p-1" key={product.id}>
                   <ProductCard product={product} />
                 </div>
               ))}
             </div>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              className="mt-10"
+            />
           </section>
         </div>
 
