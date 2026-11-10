@@ -1,13 +1,8 @@
 import ProductCard from "../../../component/ProductCard";
+import BlogCard from "../../../component/BlogCard";
 import bannerImage from "../../../assets/Else Perfume Collection in Gold.png";
-
-const categories = [
-  "All Sale",
-  "Clearance",
-  "Under ₹299",
-  "Middle Eastern",
-  "Designer",
-];
+import { useEffect, useState } from "react";
+import { getAllBlogArticles, getAllCategories, getAllProducts } from "../api";
 
 const categoryImage =
   "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/2baeb436-d003-4cdf-5717-3e34c3515000/public";
@@ -130,17 +125,110 @@ const usageSteps = [
   },
 ];
 
+const journalArticles = [
+  {
+    category: "Beauty",
+    title: "Best Perfume for Women: 12 Refined Picks for Your 40s",
+    author: "Scento Editorial Team",
+    date: "July 2, 2026",
+    image:
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=85",
+    imageAlt: "Perfume bottles arranged on a warm, sunlit shelf",
+  },
+  {
+    category: "Beauty",
+    title:
+      "Best Long Lasting Perfumes for Women 2026: 12 All-Day Picks That Beat 8 Hours",
+    author: "Scento Editorial Team",
+    date: "July 11, 2026",
+    image:
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1000&q=85",
+    imageAlt: "A colorful collection of perfume bottles",
+  },
+  {
+    category: "Guides & How-To",
+    title: "Dior Rouge Trafalgar review: notes, wear time and Esprit",
+    author: "Scento Editorial Team",
+    date: "November 10, 2026",
+    image:
+      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=85",
+    imageAlt: "A fragrance bottle styled for an editorial review",
+  },
+];
+
+const faqs = [
+  {
+    question: "How do I choose a fragrance that suits me?",
+    answer:
+      "Start with the notes you already enjoy. Fresh citrus and airy florals feel bright, while woods, amber and musk create a warmer, deeper scent. Explore a family and wear it on your skin before deciding.",
+  },
+  {
+    question: "How long does perfume usually last?",
+    answer:
+      "Wear time depends on the fragrance concentration, your skin and the weather. Applying to moisturised pulse points and storing your bottle away from heat and direct sunlight can help it last longer.",
+  },
+  {
+    question: "Are your perfumes authentic?",
+    answer:
+      "Every fragrance in our collection is sourced with authenticity in mind and goes through a quality check before it reaches you.",
+  },
+  {
+    question: "Where should I apply perfume?",
+    answer:
+      "Spray from a short distance onto pulse points such as your wrists and neck. Let the fragrance settle naturally, and avoid rubbing your skin after application.",
+  },
+];
+
 function Home() {
+  const [category, setCategory] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [openFaq, setOpenFaq] = useState(-1);
+  const [blogArticles, setBlogArticles] = useState([]);
+  const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      setCategory(response.data.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await getAllProducts();
+      setProducts(response.data.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  const fetchBlogArticles = async () => {
+    try {
+      const response = await getAllBlogArticles(1, 3);
+      setBlogArticles(response.data.data);
+    } catch (error) {
+      console.error("Error fetching blog articles:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+    fetchBlogArticles();
+  }, []);
+
   return (
     <div>
       <nav
         aria-label="Shop by category"
         className="flex w-full items-start justify-between gap-3 overflow-x-auto bg-white px-5 py-3 sm:justify-center sm:gap-7 sm:px-8"
       >
-        {categories.map((category, index) => (
+        {category.map((category, index) => (
           <a
-            href="#perfumes"
-            key={category}
+            href="perfumes"
+            key={category.id}
             className="group flex min-w-[72px] shrink-0 flex-col items-center gap-1.5 text-center text-[11px] font-semibold text-[#171717]"
           >
             <span
@@ -148,18 +236,18 @@ function Home() {
             >
               <span className="grid h-[64px] w-[64px] place-items-center rounded-full bg-[radial-gradient(circle_at_35%_28%,#fffefb_0%,#f8ead4_100%)]">
                 <img
-                  src={categoryImage}
+                  src={`${imageBaseUrl}${category.image}` || categoryImage}
                   alt=""
                   aria-hidden="true"
                   className="h-6 w-6 object-contain transition-transform duration-300 group-hover:scale-110"
                 />
               </span>
               <span className="absolute -bottom-1 rounded-full border border-white bg-[#a9182d] px-2 py-0.5 text-[8px] font-bold leading-none tracking-[0.08em] text-white shadow-sm">
-                {index === 0 ? "SALE" : "SHOP"}
+                {category?.name}
               </span>
             </span>
             <span className="whitespace-nowrap transition-colors group-hover:text-[#a9182d]">
-              {category}
+              {category?.name || "Category"}
             </span>
           </a>
         ))}
@@ -175,13 +263,113 @@ function Home() {
           <p className="mb-5 mt-2">Find your perfect scent by preference</p>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
-          {[...Array(9)].map((_, index) => (
-            <ProductCard key={index} />
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
 
-      <section aria-labelledby="how-to-use-title" className="mt-14">
+      <section
+        id="journal"
+        aria-labelledby="journal-title"
+        className="bg-white px-5 py-12 sm:px-8 sm:py-16"
+      >
+        <div className="mx-auto max-w-[1016px]">
+          <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
+            <h2
+              id="journal-title"
+              className="text-[24px] leading-tight tracking-[-0.055em] text-[#201e1c] sm:text-[27px]"
+            >
+              Our Articles
+            </h2>
+            <a
+              href="#journal"
+              className="shrink-0 text-[11px] font-medium text-[#383430] transition-colors hover:text-[#9d2532] sm:text-xs"
+            >
+              Read all articles{" "}
+              <span aria-hidden="true" className="ml-1">
+                →
+              </span>
+            </a>
+          </div>
+          <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {blogArticles.map((article) => (
+              <BlogCard key={article.title} article={article} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="faq-title"
+        className="bg-[#fbfaf8] px-5 py-14 sm:px-8 sm:py-20"
+      >
+        <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-[0.8fr_1.2fr] md:gap-16 lg:gap-24">
+          <div className="md:pt-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#8b7966]">
+              A few helpful answers
+            </p>
+            <h2
+              id="faq-title"
+              className="mt-4 max-w-sm font-serif text-[34px] font-normal leading-[1.08] tracking-[-0.035em] text-[#28231f] sm:text-[42px]"
+            >
+              Before you find your new favourite.
+            </h2>
+            <p className="mt-4 max-w-sm text-[13px] leading-6 text-[#746d65]">
+              New to fragrance, or choosing a gift? Here are a few things people
+              often ask us.
+            </p>
+          </div>
+
+          <div className="border-t border-[#ded9d2]">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <article
+                  key={faq.question}
+                  className="border-b border-[#ded9d2]"
+                >
+                  <h3>
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${index}`}
+                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                      className="flex w-full items-center justify-between gap-5 py-[18px] text-left sm:py-5"
+                    >
+                      <span className="text-[13px] font-medium leading-5 text-[#292520] sm:text-[14px]">
+                        {faq.question}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="relative grid h-7 w-7 shrink-0 place-items-center text-[#766b60]"
+                      >
+                        <span className="absolute h-px w-3.5 bg-current" />
+                        <span
+                          className={`absolute h-3.5 w-px bg-current transition-transform duration-300 ${isOpen ? "scale-y-0" : "scale-y-100"}`}
+                        />
+                      </span>
+                    </button>
+                  </h3>
+                  <div
+                    id={`faq-answer-${index}`}
+                    aria-hidden={!isOpen}
+                    className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:duration-0 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="min-h-0 overflow-hidden">
+                      <p className="max-w-xl pb-5 pr-8 text-[12px] leading-[1.8] text-[#746d65] sm:pb-6 sm:text-[13px]">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* <section aria-labelledby="how-to-use-title" className="mt-14">
         <div className="grid gap-4 bg-[#faf7f2] px-6 py-5 sm:grid-cols-3 sm:gap-8 sm:px-10 lg:px-16">
           {benefits.map((benefit) => (
             <div
@@ -224,7 +412,7 @@ function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

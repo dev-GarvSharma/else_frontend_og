@@ -15,7 +15,7 @@ const footerLinks = {
 function Footer() {
   return (
     <footer className="w-full bg-transparent text-white">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-10 px-6 pb-12 pt-12 sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.5fr_.8fr_1fr_1.05fr] lg:gap-12 lg:px-12 lg:pb-24 lg:pt-14">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-10 px-6 pb-12 pt-12 sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.5fr_.8fr_1fr_1.05fr] lg:gap-12 lg:px-12 lg:pb-24 lg:pt-14 mt-5">
         <section>
           <h2 className="mb-5 text-[17px] font-medium">Join the club</h2>
           <p className="max-w-[280px] text-[14px] leading-7">

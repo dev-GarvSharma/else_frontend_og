@@ -24,7 +24,37 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
-import { defaultProduct } from "../../../component/ProductCard";
+
+const defaultProduct = {
+  brand: "CREED",
+  name: "Aventus",
+  image:
+    "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/2baeb436-d003-4cdf-5717-3e34c3515000/public",
+  background: "#e9e8e6",
+  discount: 28,
+  tags: ["Bestseller"],
+  rating: "4.8",
+  notes: [
+    {
+      name: "Bergamot",
+      image: "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/bergamot/public",
+    },
+    {
+      name: "Black Currant",
+      image:
+        "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/black_currant/public",
+    },
+    {
+      name: "Pineapple",
+      image:
+        "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/pineapple/public",
+    },
+  ],
+  projection: "4.6",
+  longevity: "4.9",
+  price: 999,
+  originalPrice: 1390,
+};
 
 const campaignImage =
   "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/268ec5e7-a4e2-43ea-0693-0d1aec196f00/campaign";
