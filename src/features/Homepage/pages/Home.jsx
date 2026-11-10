@@ -1,6 +1,5 @@
-import React from "react";
-import ProductCard from "../component/ProductCard";
-import bannerImage from "../assets/Else Perfume Collection in Gold.png";
+import ProductCard from "../../../component/ProductCard";
+import bannerImage from "../../../assets/Else Perfume Collection in Gold.png";
 
 const categories = [
   "All Sale",

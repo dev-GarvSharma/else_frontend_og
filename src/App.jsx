@@ -1,9 +1,8 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./layout/Index";
-import Home from "./pages/Home";
-import ProductDetails from "./pages/ProductDetails";
-import Products from "./pages/Products";
+import Home from "./features/Homepage/pages/Home";
+import ProductDetails from "./features/Product/pages/ProductDetails";
+import Products from "./features/Product/pages/Products";
 
 function App() {
   return (

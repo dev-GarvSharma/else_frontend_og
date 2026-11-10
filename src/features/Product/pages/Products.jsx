@@ -1,8 +1,8 @@
 import React from "react";
 import { ArrowDownUp, ChevronDown } from "lucide-react";
-import ProductCard from "../component/ProductCard";
-import ProductFilter from "../component/ProductFilter";
-import productsBanner from "../assets/Else_ More Than a Fragrance.png";
+import ProductCard from "../../../component/ProductCard";
+import ProductFilter from "../../../component/ProductFilter";
+import productsBanner from "../../../assets/Else_ More Than a Fragrance.png";
 
 const imageBase = "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g";
 

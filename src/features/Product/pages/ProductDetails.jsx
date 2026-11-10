@@ -24,7 +24,7 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
-import { defaultProduct } from "../component/ProductCard";
+import { defaultProduct } from "../../../component/ProductCard";
 
 const campaignImage =
   "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/268ec5e7-a4e2-43ea-0693-0d1aec196f00/campaign";

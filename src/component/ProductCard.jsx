@@ -48,10 +48,7 @@ export default function ProductCard({
   const [isSaved, setIsSaved] = useState(false);
   const item = { ...defaultProduct, ...product };
   const imageUrl = item.image;
-  const formatPrice = (price) =>
-    item.currency === "EUR"
-      ? `€${Number(price).toFixed(2)}`
-      : `₹${Number(price).toLocaleString("en-IN")}`;
+  const formatPrice = (price) =>`₹${Number(price).toLocaleString("en-IN")}`;
 
   const toggleWishlist = () => {
     setIsSaved((saved) => !saved);
