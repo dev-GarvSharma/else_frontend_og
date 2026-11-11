@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getProductById } from "../api";
 import {
-  BadgeCheck,
-  BatteryFull,
   BriefcaseBusiness,
+  ArrowUp,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Flame,
-  Flower2,
   Gift,
   Heart,
   Leaf,
@@ -16,44 +15,15 @@ import {
   PackageCheck,
   ShieldCheck,
   ShoppingBag,
-  Snowflake,
   Sparkles,
   Sun,
-  ThumbsDown,
-  ThumbsUp,
   TrendingUp,
   Truck,
 } from "lucide-react";
 
 const defaultProduct = {
-  brand: "CREED",
-  name: "Aventus",
-  image:
-    "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/2baeb436-d003-4cdf-5717-3e34c3515000/public",
-  background: "#e9e8e6",
-  discount: 28,
-  tags: ["Bestseller"],
-  rating: "4.8",
-  notes: [
-    {
-      name: "Bergamot",
-      image: "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/bergamot/public",
-    },
-    {
-      name: "Black Currant",
-      image:
-        "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/black_currant/public",
-    },
-    {
-      name: "Pineapple",
-      image:
-        "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/pineapple/public",
-    },
-  ],
-  projection: "4.6",
-  longevity: "4.9",
-  price: 999,
-  originalPrice: 1390,
+  brand: "ELSE",
+  name: "Fragrance",
 };
 
 const campaignImage =
@@ -61,36 +31,13 @@ const campaignImage =
 const bottleImage =
   "https://imagedelivery.net/dTnWiVKich4PS2lEWud18g/2baeb436-d003-4cdf-5717-3e34c3515000/public";
 
-const reviews = [
-  {
-    initials: "AH",
-    name: "Avery H.",
-    title: "A Classic for a Reason",
-    body: "Honestly, Aventus is a classic for a reason. The combo of apple and pink pepper adds this nice fruity spice that's just so appealing. I get why people rave about it; it's rich but still approachable. Performance is strong too — it sticks around and projects well. Just feels luxurious every time I spray it. No regrets here!",
-    tags: ["Strong Projection", "Warm", "Compliment Getter"],
-  },
-  {
-    initials: "DT",
-    name: "Daniel T.",
-    title: "Kinda Overhyped, but Still Great",
-    body: "Okay, don't get me wrong, Aventus smells amazing with that mix of black currant and birch. The projection is solid, but I feel like it's a bit too much at times. I mean, it's classy, but sometimes the type makes it feel less special. Still, I get the appeal and wear it for special occasions. Just not my daily jam.",
-    tags: ["Elegant", "Unique", "Special Occasions"],
-  },
-  {
-    initials: "CS",
-    name: "Christopher S.",
-    title: "Obsessed with This Scent",
-    body: "Aventus is just wow! The fresh burst of bergamot and that hint of apple really grab you. It's like the perfect balance of fruity and smoky. I wear this to everything — work, dates, you name it. Seriously, compliments every time. Lasts ages too, like 8hrs with a decent projection. This is definitely a staple in my collection!",
-    tags: ["Long Lasting", "Versatile", "Compliment Getter"],
-  },
-  {
-    initials: "ED",
-    name: "Emily D.",
-    title: "Fresh & Versatile!",
-    body: "I really love how fresh Aventus is! It starts off super bright with that lemon and bergamot, and then you get this cozy vibe from the cedarwood. It's perfect for daytime but totally works for nights too. It's like a chameleon fragrance. Lasts around 6 hours on me, which is decent. Would definitely recommend.",
-    tags: ["Fresh", "Everyday Wear", "Versatile"],
-  },
-];
+const formatPrice = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
 
 function Accord({ title, children, open = false, id, qa = false }) {
   const [expanded, setExpanded] = useState(open);
@@ -100,7 +47,7 @@ function Accord({ title, children, open = false, id, qa = false }) {
       id={id}
     >
       <button
-        className={`pd-accord-title ${qa ? "!py-[13px] !text-[11px]" : ""}`}
+        className={`pd-accord-title ${qa ? "!py-[13px] !text-[14px]" : ""}`}
         aria-expanded={expanded}
         onClick={() => setExpanded(!expanded)}
       >
@@ -114,7 +61,7 @@ function Accord({ title, children, open = false, id, qa = false }) {
         className={`grid transition-[grid-template-rows,opacity,transform] duration-[360ms] ease-[cubic-bezier(.2,.75,.25,1)] motion-reduce:transition-none ${expanded ? "[grid-template-rows:1fr] translate-y-0 opacity-100" : "[grid-template-rows:0fr] -translate-y-[5px] opacity-0"}`}
       >
         <div
-          className={`min-h-0 overflow-hidden pd-accord-body ${qa ? "!text-[10px] !leading-[1.5] !text-[#666] [&>p]:!mb-[13px] [&>p]:!mt-0 [&>p]:!max-w-[760px]" : ""}`}
+          className={`min-h-0 overflow-hidden pd-accord-body ${qa ? "!text-[13px] !leading-[1.6] !text-[#666] [&>p]:!mb-[13px] [&>p]:!mt-0 [&>p]:!max-w-[760px]" : ""}`}
         >
           {children}
         </div>
@@ -123,48 +70,290 @@ function Accord({ title, children, open = false, id, qa = false }) {
   );
 }
 
-function Stars({ small = false }) {
-  return <span className={`pd-stars ${small ? "small" : ""}`}>★★★★★</span>;
+function Stars({ small = false, rating = 0 }) {
+  const filled = Math.max(0, Math.min(5, Math.round(Number(rating))));
+  return (
+    <span
+      className={`pd-stars ${small ? "small" : ""}`}
+      aria-label={`${rating} out of 5 stars`}
+    >
+      {"★".repeat(filled)}
+      {"☆".repeat(5 - filled)}
+    </span>
+  );
+}
+
+function ProductDetailsSkeleton() {
+  const block = (className = "") => (
+    <span className={`block animate-pulse rounded bg-[#e9e9e9] ${className}`} />
+  );
+  return (
+    <main
+      className="product-page pd-skeleton"
+      aria-label="Loading product details"
+      aria-busy="true"
+    >
+      <div className="pd-top-grid !items-stretch">
+        <section
+          className="pd-gallery !sticky !top-[60px] !h-max max-[800px]:!relative max-[800px]:!top-auto max-[800px]:!h-auto"
+          aria-hidden="true"
+        >
+          <div className="pd-photo">{block("h-full w-full rounded-none")}</div>
+          <div className="pd-note-strip gap-5">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="gap-2">
+                {block("h-7 w-7 rounded-full")} {block("h-3 w-14")}
+              </div>
+            ))}
+          </div>
+          <div className="pd-metrics gap-3">
+            {block("h-4 w-24")} {block("h-4 w-24")}
+          </div>
+        </section>
+        <div className="pd-content-column min-w-0">
+          <section className="pd-buy">
+            {block("mb-3 h-4 w-32")}
+            {block("mb-2 h-10 w-3/4")}
+            {block("mb-6 h-4 w-40")}
+            <div className="mb-4 flex items-center gap-3">
+              {block("h-6 w-24")} {block("h-4 w-20")} {block("h-6 w-16")}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3].map((item) => (
+                <div
+                  className="flex min-h-[118px] flex-col items-center justify-center gap-2 rounded-lg border border-[#e9e9e9]"
+                  key={item}
+                >
+                  {block("h-10 w-7")} {block("h-4 w-12")} {block("h-3 w-16")}
+                </div>
+              ))}
+            </div>
+            {block("mt-3 h-12 w-full")}
+            {block("mt-3 h-12 w-full rounded-lg bg-[#171717]")}
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {[1, 2, 3, 4].map((item) => (
+                <div className="rounded-lg bg-[#f7f7f7] p-3" key={item}>
+                  {block("mb-2 h-4 w-2/3")}
+                  {block("h-3 w-full")}
+                </div>
+              ))}
+            </div>
+          </section>
+          <div className="pd-right-lower mt-8 space-y-5">
+            {[
+              "Reviews",
+              "See What People Think",
+              "About This Scent",
+              "Featured Notes",
+              "Fragrance Profile",
+            ].map((item) => (
+              <section className="border-b border-[#e6e6e6] pb-4" key={item}>
+                {block("mb-4 h-5 w-2/5")}
+                {block("h-16 w-full")}
+              </section>
+            ))}
+          </div>
+        </div>
+      </div>
+      <section className="pd-qa" aria-hidden="true">
+        {block("mb-5 h-6 w-3/4")}
+        {[1, 2, 3, 4, 5].map((item) => (
+          <div className="border-t border-[#e5e5e5] py-4" key={item}>
+            {block("h-4 w-full")}
+          </div>
+        ))}
+      </section>
+    </main>
+  );
 }
 
 export default function ProductDetails() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [size, setSize] = useState("2ml");
   const [slide, setSlide] = useState(0);
   const [liked, setLiked] = useState(false);
   const [cart, setCart] = useState(false);
-  const gallery = [campaignImage, bottleImage, campaignImage];
-  const notes = defaultProduct.notes;
-  const sizes = [
-    { ml: "2ml", sprays: "30 SPRAYS", price: "€4.97/ml", amount: "€9.95" },
-    { ml: "5ml", sprays: "75 SPRAYS", price: "€4.78/ml", amount: "€23.90" },
-    { ml: "8ml", sprays: "120 SPRAYS", price: "€4.36/ml", amount: "€34.90" },
-  ];
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const imageBase =
+    import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
+  const resolveImage = (path, fallback = bottleImage) => {
+    if (!path) return fallback;
+    if (/^(https?:)?\/\//i.test(path)) return path;
+    return `${imageBase}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setLoadError(false);
+    getProductById(id)
+      .then((response) => {
+        if (active) setProduct(response?.data?.data || null);
+      })
+      .catch((error) => {
+        console.error("Error fetching product details:", error);
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  const productGallery = product?.images?.length
+    ? product.images.map((image) => resolveImage(image.path))
+    : [campaignImage, bottleImage, campaignImage];
+  const notes = (product?.featureNotes || []).map((note) => ({
+    name: note.text,
+    image: resolveImage(note.image, ""),
+  }));
+  const activeVariants = (
+    product?.variants?.filter((variant) => variant.active !== false) || []
+  )
+    .slice()
+    .sort(
+      (a, b) =>
+        Number(a.options?.volumeMl || 0) - Number(b.options?.volumeMl || 0),
+    );
+  const toSize = (variant) => {
+    const volume = variant.options?.volumeMl;
+    const price = Number(variant.price) || 0;
+    return {
+      ml: `${volume || variant.sku || "Size"}ml`,
+      sprays: variant.sprays ? `${variant.sprays} SPRAYS` : "",
+      price: price && volume ? `${formatPrice(price / volume)}/ml` : "",
+      amount: variant.price != null ? formatPrice(price) : "",
+      originalAmount: variant.compareAtPrice
+        ? formatPrice(variant.compareAtPrice)
+        : "",
+      image: resolveImage(variant.images?.[0] || product.images?.[0]?.path),
+    };
+  };
+  const sizes = activeVariants.map(toSize);
+  const selectedSize = sizes.find((item) => item.ml === size) || sizes[0];
+  const selectedVariant = activeVariants.find(
+    (variant) => toSize(variant).ml === selectedSize?.ml,
+  );
+  const gallery = selectedVariant?.images?.length
+    ? selectedVariant.images.map((image) => resolveImage(image))
+    : productGallery;
+  const productName = product?.name || defaultProduct.name;
+  const productBrand = product?.brand || defaultProduct.brand;
+  const reviewCount = product?.reviewCount ?? 0;
+  const productImage = gallery[slide % gallery.length] || selectedSize?.image || bottleImage;
+  const productReviews = Array.isArray(product?.reviews) ? product.reviews : [];
+  const reviewRatings = productReviews
+    .map((review) => Number(review.rating))
+    .filter((value) => Number.isFinite(value) && value >= 1 && value <= 5);
+  const ratingDistribution = [5, 4, 3, 2, 1].map((star) =>
+    reviewRatings.length
+      ? `${(reviewRatings.filter((value) => Math.round(value) === star).length / reviewRatings.length) * 100}%`
+      : "0%",
+  );
+  const averageReviewRating = reviewRatings.length
+    ? reviewRatings.reduce((sum, value) => sum + value, 0) /
+      reviewRatings.length
+    : null;
+  const ratingValue = product?.ratingAverage ?? averageReviewRating;
+  const hasRating = ratingValue != null && Number(ratingValue) > 0;
+  const rating = hasRating ? Number(ratingValue).toFixed(1) : "New";
+  const attributes = product?.attributes || {};
+  const profileFacts = [
+    [Moon, "Mood", attributes.mood],
+    [BriefcaseBusiness, "Gender", attributes.gender],
+    [Sparkles, "Intensity", attributes.intensity],
+    [
+      Leaf,
+      "Season",
+      Array.isArray(attributes.season)
+        ? attributes.season.join(", ")
+        : attributes.season,
+    ],
+    [
+      Sun,
+      "Occasion",
+      Array.isArray(attributes.occasion)
+        ? attributes.occasion.join(", ")
+        : attributes.occasion,
+    ],
+    [Heart, "Personality", attributes.personality],
+  ].filter(([, , value]) => value);
+  const reels = (product?.reelsLinks || [])
+    .filter(
+      (reel) => typeof reel.url === "string" && /^https?:\/\//i.test(reel.url),
+    )
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  const faqs = product?.faqs?.length
+    ? product.faqs.map(({ question, answer }) => [question, answer])
+    : [
+        [
+          "Are these perfumes authentic?",
+          "Every ELSE fragrance is sourced and quality checked before shipping.",
+        ],
+        [
+          `What does ${productName} smell like?`,
+          product?.description ||
+            "Explore the fragrance notes above to discover this scent.",
+        ],
+        [
+          "How long does this fragrance last?",
+          "Wear time varies based on skin and conditions.",
+        ],
+      ];
+
+  useEffect(() => {
+    if (sizes.length && !sizes.some((item) => item.ml === size))
+      setSize(sizes[0].ml);
+  }, [product]);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (loading) return <ProductDetailsSkeleton />;
+  if (loadError || !product)
+    return (
+      <main className="product-page" role="alert">
+        Unable to load this product.
+      </main>
+    );
   return (
     <main className="product-page">
-      <div className="pd-top-grid !items-stretch">
+      <div className="pd-top-grid pd-page-enter !items-stretch">
         <section
-          className="pd-gallery !sticky !top-[82px] !h-max max-[800px]:!relative max-[800px]:!top-auto max-[800px]:!h-auto"
+          className="pd-gallery !sticky !top-[60px] !h-max max-[800px]:!relative max-[800px]:!top-auto max-[800px]:!h-auto"
           aria-label="Product images"
         >
           <div className="pd-photo">
             <img
-              src={gallery[slide]}
-              alt="Creed Aventus perfume on a marble pedestal"
+              src={gallery[slide % gallery.length]}
+              alt={`${productBrand} ${productName}`}
             />
-            <span className="pd-bestseller !inline-flex !items-center !gap-[5px]">
-              <TrendingUp size={12} /> Bestseller
-            </span>
+            {product?.labelText && (
+              <span className="pd-bestseller !inline-flex !items-center !gap-[5px]">
+                <TrendingUp size={12} /> {product.labelText}
+              </span>
+            )}
             <button
               className="pd-arrow left"
               aria-label="Previous image"
-              onClick={() => setSlide((slide + 2) % 3)}
+              onClick={() =>
+                setSlide((slide + gallery.length - 1) % gallery.length)
+              }
             >
               <ChevronLeft />
             </button>
             <button
               className="pd-arrow right"
               aria-label="Next image"
-              onClick={() => setSlide((slide + 1) % 3)}
+              onClick={() => setSlide((slide + 1) % gallery.length)}
             >
               <ChevronRight />
             </button>
@@ -187,29 +376,34 @@ export default function ProductDetails() {
                   src={note.image}
                   alt=""
                 />
-                <span className="!text-[10px]">{note.name}</span>
+                <span className="!text-[12px]">{note.name}</span>
               </div>
             ))}
           </div>
-          <div className="pd-metrics">
-            <span className="!inline-flex !items-center !gap-[5px]">
-              <Sparkles size={13} /> Projection <b>4.6</b>
-            </span>
-            <span className="!inline-flex !items-center !gap-[5px]">
-              <BatteryFull size={13} /> Longevity <b>4.9</b>
-            </span>
-          </div>
+          {!!profileFacts.length && (
+            <div className="pd-metrics">
+              {profileFacts.slice(0, 2).map(([Icon, label, value]) => (
+                <span
+                  className="!inline-flex !items-center !gap-[5px]"
+                  key={label}
+                >
+                  <Icon size={13} /> {label} <b>{value}</b>
+                </span>
+              ))}
+            </div>
+          )}
         </section>
         <div className="pd-content-column min-w-0">
           <section className="pd-buy">
             <div className="pd-crumb">
-              Perfumes / <b>Creed</b>
+              {product?.category?.name || "Perfumes"} / <b>{productBrand}</b>
             </div>
             <div className="pd-name-row">
               <div>
-                <h1>Aventus</h1>
+                <h1>{productName}</h1>
                 <div className="pd-rating">
-                  <Stars /> <b>4.8</b> <a href="#reviews">(22,639 reviews)</a>
+                  {hasRating && <Stars rating={rating} />} <b>{rating}</b>{" "}
+                  <a href="#reviews">({reviewCount} reviews)</a>
                 </div>
               </div>
               <button
@@ -224,83 +418,94 @@ export default function ProductDetails() {
               </button>
             </div>
             <div className="pd-price">
-              <strong>
-                {sizes.find((s) => s.ml === size)?.amount ?? "€129.00"}
-              </strong>
-              <del>
-                {size === "2ml"
-                  ? "€13.90"
-                  : size === "5ml"
-                    ? "€32.90"
-                    : size === "8ml"
-                      ? "€47.90"
-                      : "€159.00"}
-              </del>
-              <span>Black Friday -28%</span>
+              <strong>{selectedSize?.amount || "—"}</strong>
+              {selectedSize?.originalAmount && (
+                <del>{selectedSize.originalAmount}</del>
+              )}
+              {selectedSize?.originalAmount && (
+                <span>
+                  Save{" "}
+                  {Math.round(
+                    (1 -
+                      Number(selectedSize.amount.replace(/[^\d.]/g, "")) /
+                        Number(
+                          selectedSize.originalAmount.replace(/[^\d.]/g, ""),
+                        )) *
+                      100,
+                  )}
+                  %
+                </span>
+              )}
             </div>
             <div className="pd-size-grid">
               {sizes.map((s) => (
                 <button
                   key={s.ml}
-                  onClick={() => setSize(s.ml)}
+                  onClick={() => {
+                    setSize(s.ml);
+                    setSlide(0);
+                  }}
                   className={`pd-size ${size === s.ml ? "selected" : ""}`}
                 >
-                  <img src={bottleImage} alt="" />
+                  <img src={s.image || productImage} alt="" />
                   <b>{s.ml}</b>
                   <small>{s.sprays}</small>
                   <small>{s.price}</small>
-                  {s.ml === "8ml" && <em>MOST POPULAR</em>}
                 </button>
               ))}
             </div>
-            <button
-              className={`pd-large-size ${size === "30ml" ? "selected" : ""}`}
-              onClick={() => setSize("30ml")}
-            >
-              <img src={bottleImage} alt="" />
-              <span>
-                <b>30ml</b>
-                <small>450 sprays</small>
-              </span>
-              <strong>€129.00</strong>
-            </button>
-            <p className="pd-delivery !inline-flex !items-center !gap-[5px]">
-              <PackageCheck size={14} /> Ships tomorrow, 5 November
-            </p>
-            <button className="pd-add" onClick={() => setCart(true)}>
+            {product.deliveryMessage && (
+              <p className="pd-delivery !inline-flex !items-center !gap-[5px]">
+                <PackageCheck size={14} /> {product.deliveryMessage}
+              </p>
+            )}
+            <button className="pd-add mt-5" onClick={() => setCart(true)}>
               <ShoppingBag size={15} />
               {cart ? "Added to Cart" : "Add to Cart"}
             </button>
-            <div className="pd-bundle">
-              <span className="pd-new">NEW</span>
-              <span>
-                <b>Bundle Aventus with 4 more</b>
-                <small>Build a set of 5, save 10% + FREE travel case</small>
-              </span>
-              <ChevronRight size={15} />
-              <div className="bundle-vials">▏▏▏▏▏</div>
-            </div>
-            <p className="pd-popular !inline-flex !items-center !gap-[5px]">
-              <Flame size={14} /> This product was bought <b>1,125 times</b>{" "}
-              this week
-            </p>
-            <h3 className="pd-promise-title">The Scento® Promise</h3>
+            {product.bundleOffer && (
+              <div className="pd-bundle">
+                <span className="pd-new">NEW</span>
+                <span>
+                  <b>{product.bundleOffer.title || `Bundle ${productName}`}</b>
+                  {product.bundleOffer.description && (
+                    <small>{product.bundleOffer.description}</small>
+                  )}
+                </span>
+                <ChevronRight size={15} />
+                <div className="bundle-vials">▏▏▏▏▏</div>
+              </div>
+            )}
+            {Number.isFinite(Number(product.weeklyPurchaseCount)) &&
+              product.weeklyPurchaseCount != null && (
+                <p className="pd-popular !inline-flex !items-center !gap-[5px]">
+                  <Flame size={14} /> This product was bought{" "}
+                  <b>
+                    {Number(product.weeklyPurchaseCount).toLocaleString(
+                      "en-IN",
+                    )}{" "}
+                    times
+                  </b>{" "}
+                  this week
+                </p>
+              )}
+            <h3 className="pd-promise-title">The ELSE® Promise</h3>
             <div className="pd-promises">
               {[
                 [
                   ShieldCheck,
-                  "100% authenticity guarantee",
+                  "Authenticity guarantee",
                   "Authentic fragrances from original full-sized bottles sourced through authorised European retailers.",
                 ],
                 [
                   Heart,
-                  "30-day satisfaction guarantee",
+                  "Customer satisfaction guarantee",
                   "Not what you expected? We'll make it right, no questions.",
                 ],
                 [
                   Truck,
-                  "Fast 1-day shipping",
-                  "Tracked delivery to 26 supported European countries; rates vary by destination.",
+                  "Tracked shipping",
+                  "Shipping options and timing are shown at checkout.",
                 ],
                 [
                   Gift,
@@ -319,90 +524,83 @@ export default function ProductDetails() {
             </div>
           </section>
           <div className="pd-right-lower">
-            <Accord title="Reviews (22,639)" open id="reviews">
+            <Accord title={`Reviews (${reviewCount})`} open id="reviews">
               <div className="pd-review-content">
                 <div className="pd-score">
-                  <strong>4.8</strong>
-                  <Stars />
-                  <small>22,639 reviews</small>
+                  <strong className={!hasRating ? "pd-score-new" : ""}>
+                    {rating}
+                  </strong>
+                  {hasRating && <Stars rating={rating} />}
+                  <small>{reviewCount} reviews</small>
                 </div>
                 <div className="pd-bars">
                   {["5", "4", "3", "2", "1"].map((n, i) => (
                     <div key={n}>
                       <span>{n}</span>
                       <i>
-                        <b
-                          style={{ width: ["69%", "21%", "5%", "3%", "2%"][i] }}
-                        />
+                        <b style={{ width: ratingDistribution[i] }} />
                       </i>
                     </div>
                   ))}
                 </div>
-                {reviews.map((r) => (
-                  <article className="pd-review" key={r.name}>
-                    <div className="pd-avatar">{r.initials}</div>
+                {productReviews.map((r) => (
+                  <article className="pd-review" key={r.id}>
+                    <div className="pd-avatar">
+                      {(r.customerName || "")
+                        .split(/\s+/)
+                        .filter(Boolean)
+                        .map((part) => part[0])
+                        .slice(0, 2)
+                        .join("")}
+                    </div>
                     <div className="pd-review-main">
                       <div className="pd-review-meta">
-                        <b>{r.name}</b>
-                        <span className="!inline-flex !items-center !gap-[3px]">
-                          <BadgeCheck size={11} /> Verified Purchase
-                        </span>
-                        <small>
-                          Gender: Other　|　Age: 18-24　|　October 30, 2025
-                        </small>
+                        <b>{r.customerName}</b>
+                        {r.createdAt && (
+                          <small>
+                            {new Date(r.createdAt).toLocaleDateString("en-IN", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </small>
+                        )}
                       </div>
                       <h4>{r.title}</h4>
                       <p>{r.body}</p>
                       <div className="pd-review-bottom">
-                        <Stars small />
-                        {r.tags.map((t) => (
-                          <span className="pd-tag" key={t}>
-                            {t}
-                          </span>
-                        ))}
-                        <small>Was this review helpful?</small>
-                        <button aria-label="Helpful">
-                          <ThumbsUp size={12} />
-                        </button>
-                        <button aria-label="Not helpful">
-                          <ThumbsDown size={12} />
-                        </button>
+                        {Number(r.rating) > 0 && (
+                          <Stars small rating={r.rating} />
+                        )}
                       </div>
                     </div>
                   </article>
                 ))}
               </div>
             </Accord>
-            <section className="pd-accord pd-social">
-              <h2>See What People Think</h2>
-              <div className="pd-social-row !items-start">
-                {[
-                  "No more blind buys",
-                  "Fits in my pocket",
-                  "Packed for every trip",
-                  "Always in my bag",
-                  "My collection keeps growing",
-                ].map((text, i) => (
-                  <div
-                    className={`pd-social-card tone-${i} !h-auto !w-[92px] !min-w-0 !flex-none !aspect-[9/16] !overflow-hidden !px-[7px] !py-[9px]`}
-                    key={text}
-                  >
-                    <b>SCENTO</b>
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <Accord title="About This Scent" open>
+            {reels.length > 0 && (
+              <Accord title="See What People Think">
+                <div className="pd-social-row !items-start">
+                  {reels.map((reel, i) => (
+                    <a
+                      className={`pd-social-card tone-${i % 5} !h-auto !w-[92px] !min-w-0 !flex-none !aspect-[9/16] !overflow-hidden !px-[7px] !py-[9px]`}
+                      key={reel.id || reel.url}
+                      href={reel.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Watch ${productName} Instagram reel ${i + 1}`}
+                    >
+                      <b>ELSE</b>
+                      <span>Watch this reel</span>
+                    </a>
+                  ))}
+                </div>
+              </Accord>
+            )}
+            <Accord title="About This Scent">
               <p>
-                Aventus by Creed is a fruity chypre fragrance for men from 2010,
-                created by perfumers Jean-Christophe Hérault and Erwin Creed and
-                built on a fruity, sweet and woody accord. Its top notes are
-                bergamot, black currant, apple, pineapple and pink pepper; a
-                bright, juicy opening. The heart notes bring together pineapple,
-                patchouli and Moroccan jasmine.
+                {product.description || `${productName} by ${productBrand}.`}
               </p>
-              <button className="pd-readmore">Read more⌄</button>
             </Accord>
             <Accord title="Featured Notes">
               <div className="pd-note-cards">
@@ -421,124 +619,59 @@ export default function ProductDetails() {
                 ))}
               </div>
             </Accord>
-            <Accord title="How Users Experience" open>
-              <p className="pd-label">Best time of day</p>
-              <div className="pd-experience">
-                {[
-                  [Moon, "Evening", "1678 votes"],
-                  [Sun, "Daytime", "5230 votes"],
-                  [Clock3, "Night out", "1055 votes"],
-                  [BriefcaseBusiness, "Office", "2512 votes"],
-                ].map(([Icon, label, vote]) => (
-                  <div key={label}>
-                    <span className="!flex !h-[17px] !items-center !text-[#d9a733]">
-                      <Icon className="!h-[14px] !w-[14px] !stroke-[1.65]" />
-                    </span>
-                    <b>{label}</b>
-                    <small>{vote}</small>
-                  </div>
-                ))}
-              </div>
-              <p className="pd-label">Best season to wear</p>
-              <div className="pd-experience">
-                {[
-                  [Leaf, "Fall", "2340 votes"],
-                  [Snowflake, "Winter", "585 votes"],
-                  [Flower2, "Spring", "4102 votes"],
-                  [Sun, "Summer", "3611 votes"],
-                ].map(([Icon, label, vote]) => (
-                  <div key={label}>
-                    <span className="!flex !h-[17px] !items-center !text-[#d9a733]">
-                      <Icon className="!h-[14px] !w-[14px] !stroke-[1.65]" />
-                    </span>
-                    <b>{label}</b>
-                    <small>{vote}</small>
-                  </div>
-                ))}
-              </div>
-              <p className="pd-label">Longevity</p>
-              <div className="pd-experience wide">
-                {[
-                  "Very weak",
-                  "Weak",
-                  "Moderate",
-                  "Long lasting",
-                  "Eternal",
-                ].map((x, i) => (
-                  <div key={x}>
-                    <span className="!flex !h-[17px] !items-center !text-[#d9a733]">
-                      <BatteryFull className="!h-[14px] !w-[14px] !stroke-[1.65]" />
-                    </span>
-                    <b>{x}</b>
-                    <small>{[51, 153, 1825, 5089, 3105][i]} votes</small>
-                  </div>
-                ))}
-              </div>
-              <p className="pd-label">Projection</p>
-              <div className="pd-experience">
-                {["Soft", "Moderate", "Strong", "Enormous"].map((x, i) => (
-                  <div key={x}>
-                    <span className="!flex !h-[17px] !items-center !text-[#d9a733]">
-                      <Sparkles className="!h-[14px] !w-[14px] !stroke-[1.65]" />
-                    </span>
-                    <b>{x}</b>
-                    <small>{[900, 4200, 5800, 2100][i]} votes</small>
-                  </div>
-                ))}
-              </div>
-            </Accord>
-            <Accord title="Similar Scents">
-              <div className="pd-similar">
-                {[
-                  ["Nishane", "Hacivat"],
-                  ["Creed", "Aventus Cologne"],
-                  ["Mancera", "Cedrat Boise"],
-                  ["Afnan", "Supremacy Collector's Edition"],
-                ].map(([brand, name], i) => (
-                  <div key={name}>
-                    <div className={`pd-scent-image shade-${i}`}>
-                      <img src={bottleImage} alt="" />
+            {profileFacts.length > 0 && (
+              <Accord title="Fragrance Profile">
+                <div className="pd-profile-grid">
+                  {profileFacts.map(([Icon, label, value]) => (
+                    <div key={label}>
+                      <Icon size={16} aria-hidden="true" />
+                      <span>{label}</span>
+                      <b>{value}</b>
                     </div>
-                    <small>{brand}</small>
-                    <b>{name}</b>
+                  ))}
+                </div>
+              </Accord>
+            )}
+            {Array.isArray(product.similarScents) &&
+              product.similarScents.length > 0 && (
+                <Accord title="Similar Scents">
+                  <div className="pd-similar">
+                    {product.similarScents.map((scent, i) => (
+                      <div key={scent.id || scent.name}>
+                        <div className={`pd-scent-image shade-${i % 4}`}>
+                          <img src={resolveImage(scent.image)} alt="" />
+                        </div>
+                        {scent.brand && <small>{scent.brand}</small>}
+                        <b>{scent.name}</b>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </Accord>
+                </Accord>
+              )}
           </div>
         </div>
       </div>
       <section className="pd-qa">
         <h2>
-          Questions &amp; Answers <span>Creed Aventus</span>
+          Questions &amp; Answers{" "}
+          <span>
+            {productBrand} {productName}
+          </span>
         </h2>
-        {[
-          [
-            "Are these perfumes authentic?",
-            "Yes. Each Scento decant is hand-poured from an original full-sized bottle sourced through authorised European retailers — never a clone, dupe or inspired-by version. Manufacturer batch codes belong to those original bottles and are not printed on Scento decant vials.",
-          ],
-          [
-            "What does Aventus smell like?",
-            "Aventus opens with bright bergamot, black currant and pineapple, before settling into a smoky, woody base.",
-          ],
-          [
-            "How long does Aventus last?",
-            "Most users experience 7–9 hours of wear, depending on skin and conditions.",
-          ],
-          [
-            "What's similar to Aventus?",
-            "Try Aventus Cologne, Nishane Hacivat or Mancera Cedrat Boise.",
-          ],
-          [
-            "Where can I buy Aventus samples?",
-            "Choose your preferred size above and add it to your cart.",
-          ],
-        ].map(([q, a], i) => (
-          <Accord key={q} title={q} open={i === 0} qa>
+        {faqs.map(([q, a], i) => (
+          <Accord key={q} title={q} qa>
             <p>{a}</p>
           </Accord>
         ))}
       </section>
+      <button
+        type="button"
+        className={`pd-scroll-top ${showScrollTop ? "is-visible" : ""}`}
+        aria-label="Scroll to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <ArrowUp size={20} />
+      </button>
     </main>
   );
 }

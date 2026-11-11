@@ -72,7 +72,7 @@ function MobileTabBar() {
 
 function Index() {
   const { pathname } = useLocation();
-  const isProductPage = pathname === "/perfumes/creed-aventus";
+  const isProductPage = pathname.startsWith("/perfume/");
   const isProductsPage = pathname === "/perfumes";
   return (
     <div className="flex flex-col min-h-screen bg-[#151515]">

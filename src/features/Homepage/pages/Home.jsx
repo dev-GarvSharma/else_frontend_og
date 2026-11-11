@@ -252,13 +252,13 @@ function Home() {
           <p className="mb-5 mt-2">Find your perfect scent by preference</p>
         </div>
         <div
-          className="flex flex-wrap justify-center gap-3"
+          className="grid grid-cols-2 gap-1 sm:gap-3 xl:grid-cols-3 2xl:grid-cols-4 mx-auto max-w-[1016px]"
           role={productsLoading ? "status" : undefined}
           aria-label={productsLoading ? "Loading products" : undefined}
           aria-busy={productsLoading || undefined}
         >
           {productsLoading
-            ? Array.from({ length: 3 }, (_, index) => (
+            ? Array.from({ length: 6 }, (_, index) => (
                 <ProductCardSkeleton key={index} />
               ))
             : products.map((product) => (
@@ -297,7 +297,7 @@ function Home() {
                 <BlogCardSkeleton />
               </SkeletonGroup>
             ) : blogArticles.map((article) => (
-              <BlogCard key={article.slug} article={article} />
+              <BlogCard key={article.slug} article={article} url="/blogs" />
             ))}
           </div>
         </div>

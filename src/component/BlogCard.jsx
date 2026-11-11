@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { formatIndianDate } from "../helpers/Helper";
-export default function BlogCard({ article }) {
+export default function BlogCard({ article , url }) {
   const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
   const imageUrl = `${imageBaseUrl}${article.bannerImage || "/default-image.jpg"}`;
   return (
     <article className="group min-w-0">
       <Link
-        to={`${article.slug}`}
+        to={`${url}/${article.slug}`}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8e2330] focus-visible:ring-offset-4"
       >
         <div className="relative aspect-[1.4/1] overflow-hidden rounded-[14px] bg-[#eee8df] shadow-[0_3px_10px_rgba(31,24,18,0.08)]">

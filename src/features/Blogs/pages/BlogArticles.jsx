@@ -38,7 +38,7 @@ function BlogArticles() {
             <BlogCardSkeleton />
           </SkeletonGroup>
         ) : blogArticles.map((article) => (
-          <BlogCard key={article.slug} article={article} />
+          <BlogCard key={article.slug} article={article} url="/blogs" />
         ))}
       </div>
       <Pagination
