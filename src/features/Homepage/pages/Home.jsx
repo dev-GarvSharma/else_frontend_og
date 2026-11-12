@@ -1,6 +1,6 @@
 import ProductCard from "../../../component/ProductCard";
 import BlogCard from "../../../component/BlogCard";
-import bannerImage from "../../../assets/Else Perfume Collection in Gold.png";
+import bannerImage from "../../../assets/A Statement in Burgundy.png";
 import { useEffect, useState } from "react";
 import { getAllBlogArticles, getAllCategories, getAllProducts } from "../api";
 import { Link } from "react-router-dom";
