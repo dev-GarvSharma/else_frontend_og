@@ -9,16 +9,23 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../features/Cart/cartSlice";
 
 export default function ProductCard({
   product = {},
   onAddToCart,
   onToggleWishlist,
+  compact = false,
 }) {
   const [isSaved, setIsSaved] = useState(false);
+  const dispatch = useDispatch();
   const item = product || "";
-  const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL;
-  const imageUrl = `${imageBaseUrl}${item.images?.[0]?.path || "/default-image.jpg"}`;
+  const imageBaseUrl = import.meta.env.VITE_IMAGE_BASE_URL || "";
+  const imagePath = item.images?.[0]?.path || item.images?.[0] || "/default-image.jpg";
+  const imageUrl = /^(https?:)?\/\//i.test(imagePath)
+    ? imagePath
+    : `${imageBaseUrl}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
   const formatPrice = (price) => `₹${Number(price).toLocaleString("en-IN")}`;
   const price = formatPrice(item.variants?.[0]?.price || 0);
   const compareAtPrice = formatPrice(item.variants?.[0]?.compareAtPrice || 0);
@@ -29,10 +36,52 @@ export default function ProductCard({
           100,
       )
     : 0;
+  const rating = Math.min(5, Math.max(0, Number(item.ratingAverage) || 0));
 
   const toggleWishlist = () => {
     setIsSaved((saved) => !saved);
+    onToggleWishlist?.(item);
   };
+
+  if (compact) {
+    return (
+      <article className="group relative flex min-h-[205px] w-full flex-col overflow-hidden rounded-xl border border-[#d9dfea] bg-white p-1.5 text-neutral-900 shadow-sm transition-shadow hover:shadow-md sm:min-h-[218px] sm:p-2">
+        <div className="absolute left-1.5 top-1.5 z-10 flex max-w-[76%] flex-col items-start gap-1">
+          <span className="max-w-full truncate rounded-sm bg-[#171717] px-1.5 py-1 text-[7px] font-bold leading-none text-white sm:text-[8px]">
+            {item?.labelText || `EXCLUSIVE ${discountPercentage}% OFF`}
+          </span>
+          <span className="flex items-center gap-1 rounded-full border border-black/5 bg-white/95 px-1.5 py-0.5 text-[7px] font-semibold shadow-sm sm:text-[8px]">
+            {item?.category?.name || "Perfumes"}<Flame size={9} color="#F97316" />
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={toggleWishlist}
+          aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={isSaved}
+          className={`absolute right-1.5 top-1.5 z-20 grid h-6 w-6 place-items-center rounded-full border border-black/5 bg-white/90 text-neutral-500 shadow-sm ${isSaved ? "text-rose-600" : ""}`}
+        >
+          <Heart size={13} fill={isSaved ? "currentColor" : "none"} />
+        </button>
+        <Link to={`/perfume/${item.id}`} className="flex min-h-0 flex-1 flex-col items-center px-1 pt-8 text-center">
+          <div className="grid h-[70px] w-full place-items-center sm:h-[76px]">
+            <img src={imageUrl} alt={`${item.brand || ""} ${item.name || ""} perfume bottle`} className="h-full w-full object-contain p-1 transition-transform duration-300 group-hover:scale-105" />
+          </div>
+          <p className="mt-1 w-full truncate text-[7px] text-neutral-600 sm:text-[8px]">{item.brand || "ELSE"}</p>
+          <h3 className="w-full truncate text-[9px] font-medium leading-3.5 sm:text-[10px]">{item.name || "Fragrance"}</h3>
+          <div className="mt-0.5 flex items-center gap-0.5 text-[7px] text-[#f5a623]" aria-label={`${rating} out of 5 stars`}>
+            <span aria-hidden="true">{"★".repeat(Math.floor(rating))}{"☆".repeat(5 - Math.floor(rating))}</span>
+            {item.ratingAverage ? <span className="font-semibold text-neutral-700">{Number(item.ratingAverage).toFixed(1)}</span> : null}
+          </div>
+        </Link>
+        <button type="button" onClick={(event) => { event.preventDefault(); onAddToCart ? onAddToCart(item) : dispatch(addToCart(item)); }} className="mt-1 flex min-h-7 w-full items-center justify-center gap-1 rounded-md bg-neutral-900 px-1 text-[7px] text-white transition-colors hover:bg-neutral-700 sm:text-[8px]">
+          <span>From</span>
+          {item.variants?.[0]?.compareAtPrice > item.variants?.[0]?.price && <s className="text-white/50">{compareAtPrice}</s>}
+          <strong className="font-medium">{price}</strong>
+        </button>
+      </article>
+    );
+  }
 
   return (
     <article className="group relative isolate flex min-h-[326px] w-full max-w-[340px] flex-col overflow-hidden rounded-2xl bg-white p-2 text-neutral-900 shadow-sm transition-[box-shadow,transform] duration-200 ease-out before:pointer-events-none before:absolute before:inset-0 before:z-10 before:rounded-[inherit] before:shadow-[inset_0_0_0_1px_#d9d9d9,inset_0_0_0_4px_#fff] hover:shadow-[0_8px_24px_rgba(0,0,0,.1)] sm:min-h-[498px] sm:rounded-xl sm:p-3 md:min-h-[651px] md:rounded-2xl md:p-4 lg:min-h-[601px]">
@@ -93,8 +142,6 @@ export default function ProductCard({
             <div className="flex items-center gap-2">
               <span className="flex gap-0.5 text-[#f5a623]" aria-hidden="true">
                 {Array.from({ length: 5 }, (_, index) => {
-                  const rating = Number(item.ratingAverage || 0);
-
                   return (
                     <span key={index}>
                       {rating >= index + 1 ? (
@@ -167,7 +214,11 @@ export default function ProductCard({
 
           <button
             type="button"
-            onClick={() => onAddToCart?.(item)}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onAddToCart ? onAddToCart(item) : dispatch(addToCart(item));
+            }}
             className="mt-auto flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-2 text-[10px] text-white transition-colors hover:bg-neutral-700 sm:min-h-12 sm:text-[11px]"
           >
             <span>From</span>

@@ -5,8 +5,14 @@ import { Outlet, useLocation } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { House, ShoppingBag, Store, UserRound } from "lucide-react";
 import FestiveBanner from "../component/FestiveBanner";
+import CartDrawer from "../component/CartDrawer";
+import { useDispatch, useSelector } from "react-redux";
+import { setCartOpen } from "../features/Cart/cartSlice";
+import Cart from "../component/Cart";
 
 function MobileTabBar() {
+  const dispatch = useDispatch();
+  const cartCount = useSelector((state) => state.cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0));
   const tabs = [
     { label: "Home", to: "/", icon: House, end: true },
     { label: "Products", to: "/perfumes", icon: Store },
@@ -55,12 +61,13 @@ function MobileTabBar() {
         <button
           type="button"
           aria-label="Shopping bag"
+          onClick={() => dispatch(setCartOpen(true))}
           className="relative flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] hover:text-[#171717]"
         >
           <span className="relative grid h-8 w-12 place-items-center rounded-full text-[#777]">
             <ShoppingBag size={18} strokeWidth={1.8} />
             <span className="absolute right-2 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#171717] px-1 text-[9px] text-white">
-              1
+              {cartCount}
             </span>
           </span>
           <span>Cart</span>
@@ -87,6 +94,7 @@ function Index() {
         <Footer />
       </div>
       <MobileTabBar />
+      <Cart />
     </div>
   );
 }

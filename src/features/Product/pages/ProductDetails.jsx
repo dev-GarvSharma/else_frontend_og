@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../Cart/cartSlice";
 import { getProductById } from "../api";
 import {
   BriefcaseBusiness,
@@ -168,6 +170,7 @@ function ProductDetailsSkeleton() {
 }
 
 export default function ProductDetails() {
+  const dispatch = useDispatch();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -459,7 +462,10 @@ export default function ProductDetails() {
                 <PackageCheck size={14} /> {product.deliveryMessage}
               </p>
             )}
-            <button className="pd-add mt-5" onClick={() => setCart(true)}>
+            <button className="pd-add mt-5" onClick={() => {
+              dispatch(addToCart({ ...product, name: productName, brand: productBrand, images: product?.images?.length ? product.images.map((image) => typeof image === "string" ? { path: image } : image) : [{ path: productImage }], variants: selectedVariant ? [selectedVariant] : product?.variants }));
+              setCart(true);
+            }}>
               <ShoppingBag size={15} />
               {cart ? "Added to Cart" : "Add to Cart"}
             </button>

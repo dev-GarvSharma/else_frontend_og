@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+/* Cart drawer shell uses regular CSS so its fixed panel and entrance remain
+   reliable alongside the site's layered utility styles. */
+.cart-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  border: 0;
+  background: rgb(18 16 15 / 48%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+  cursor: default;
+}
+.cart-drawer-backdrop[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.cart-drawer-panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 81;
+  display: flex;
+  flex-direction: column;
+  width: min(100vw, 480px);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #faf9f6;
+  color: #171717;
+  box-shadow: -18px 0 50px rgb(0 0 0 / 16%);
+  transform: translateX(102%);
+  visibility: hidden;
+  transition: transform 320ms cubic-bezier(.2,.75,.25,1), visibility 320ms;
+}
+.cart-drawer-panel[data-open="true"] {
+  transform: translateX(0);
+  visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer-backdrop,
+  .cart-drawer-panel { transition-duration: 1ms; }
+}
+
+.cart-suggested-carousel::-webkit-scrollbar {
+  display: none;
+}
+.cart-suggestion-slide {
+  flex: 0 0 calc((100% - 16px) / 3);
+}
+
 .journal-page {
   --journal-ink: #292521;
   --journal-muted: #77716a;

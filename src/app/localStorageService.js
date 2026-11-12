@@ -1,6 +1,7 @@
 const ACCESS_TOKEN_KEY = "crm_access_token";
 const REFRESH_TOKEN_KEY = "crm_refresh_token";
 const USER_DATA_KEY = "crm_user_data";
+const CART_KEY = "else_cart";
 
 const getStorage = () =>
   typeof window !== "undefined" ? window.localStorage : null;
@@ -27,6 +28,16 @@ const LocalStorageService = {
 
   getUserData() {
     return readJson(USER_DATA_KEY);
+  },
+
+  getCart() {
+    const cart = readJson(CART_KEY);
+    return Array.isArray(cart) ? cart : [];
+  },
+
+  setCart(cart = []) {
+    const storage = getStorage();
+    if (storage) storage.setItem(CART_KEY, JSON.stringify(cart));
   },
 
   setTokenData(tokenData = {}) {

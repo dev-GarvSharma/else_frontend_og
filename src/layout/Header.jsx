@@ -1,6 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import SearchOverlay from "../component/SearchOverlay";
+import { useDispatch, useSelector } from "react-redux";
+import { setCartOpen } from "../features/Cart/cartSlice";
 
 function SearchIcon() {
   return (
@@ -66,6 +68,8 @@ function BagIcon() {
 }
 
 function Header() {
+  const dispatch = useDispatch();
+  const cartCount = useSelector((state) => state.cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0));
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -147,11 +151,12 @@ function Header() {
           <button
             type="button"
             aria-label="Shopping bag"
+            onClick={() => dispatch(setCartOpen(true))}
             className="relative hidden text-[#222] lg:block"
           >
             <BagIcon />
             <span className="absolute -right-[7px] -top-[7px] flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#171717] px-1 text-[9px] font-medium text-white">
-              1
+              {cartCount}
             </span>
           </button>
         </div>
