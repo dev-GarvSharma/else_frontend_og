@@ -6,6 +6,7 @@ import ProductDetails from "./features/Product/pages/ProductDetails";
 import Products from "./features/Product/pages/Products";
 import BlogArticles from "./features/Blogs/pages/BlogArticles";
 import BlogArticleDetails from "./features/Blogs/pages/BlogArticleDetails";
+import NotFound from "./component/NotFound";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -24,6 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />}>
           <Route index element={<Home />} />
+          <Route path="*" element={<NotFound />} />
           <Route path="perfumes" element={<Products />} />
           <Route path="perfume/:id" element={<ProductDetails />} />
           <Route path="blogs" element={<BlogArticles />} />

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import SearchOverlay from "../component/SearchOverlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartOpen } from "../features/Cart/cartSlice";
+import { Link } from "react-router-dom";
 
 function SearchIcon() {
   return (
@@ -88,39 +89,34 @@ function Header() {
           aria-label="Main navigation"
           className="hidden items-center gap-6 whitespace-nowrap text-[12px] lg:flex lg:gap-8"
         >
-          <a
-            href="#perfumes"
+          <Link
+            to="perfumes"
             className="transition-colors hover:text-[#a64d3e]"
           >
             Perfumes
-          </a>
-          <a href="#women" className="transition-colors hover:text-[#a64d3e]">
+          </Link>
+          <Link to="#women" className="transition-colors hover:text-[#a64d3e]">
             Women
-          </a>
-          <a href="#men" className="transition-colors hover:text-[#a64d3e]">
+          </Link>
+          <Link to="#men" className="transition-colors hover:text-[#a64d3e]">
             Men
-          </a>
-          <a
-            href="#advent-calendar"
-            className="transition-colors hover:text-[#a64d3e]"
-          >
+          </Link>
+          <Link to="#advent-calendar" className="transition-colors hover:text-[#a64d3e]">
             Advent calendar
-          </a>
-          <a
-            href="#sale"
-            className="rounded-full bg-[#d52935] px-3 py-1 font-medium leading-none text-white"
-          >
+          </Link>
+          <Link to="#sale" className="rounded-full bg-[#d52935] px-3 py-1 font-medium leading-none text-white">
+
             Sale
-          </a>
+          </Link>
         </nav>
 
-        <a
-          href="/"
+        <Link
+          to="/"
           aria-label="ELSE home"
           className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[21px] font-semibold tracking-[0.2em] sm:text-[23px]"
         >
           ELSE
-        </a>
+        </Link>
 
         <div className="ml-auto flex items-center gap-3 sm:gap-5">
           <button

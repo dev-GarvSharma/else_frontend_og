@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ArrowDownUp, ChevronDown } from "lucide-react";
 import ProductCard from "../../../component/ProductCard";
 import ProductFilter from "../../../component/ProductFilter";
-import productsBanner from "../../../assets/Else_ More Than a Fragrance.png";
+import productsBanner from "../../../assets/Else Fragrances in Golden Jungle Light.png";
 import { getAllProductsList } from "../api";
 import Pagination from "../../../component/Pagination";
 import { ProductCardSkeleton, SkeletonGroup } from "../../../component/CardSkeletons";
