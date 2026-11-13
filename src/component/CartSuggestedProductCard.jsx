@@ -13,10 +13,15 @@ export default function CartSuggestedProductCarousel({ products = [], loading = 
     if (!carousel) return undefined;
 
     const updateDots = () => {
-      const maxScroll = Math.max(carousel.scrollWidth - carousel.clientWidth, 0);
-      const pages = maxScroll === 0
-        ? 1
-        : Math.ceil((maxScroll / carousel.clientWidth) * 1.1) + 1;
+      const clientWidth = carousel.clientWidth;
+      const maxScroll = Math.max(carousel.scrollWidth - clientWidth, 0);
+      const slideCount = loading ? 6 : products.length;
+      const calculatedPages = clientWidth > 0 && maxScroll > 0
+        ? Math.ceil((maxScroll / clientWidth) * 1.1) + 1
+        : 1;
+      const pages = Number.isFinite(calculatedPages)
+        ? Math.max(1, Math.min(calculatedPages, Math.max(slideCount, 1)))
+        : 1;
       setDotCount(pages);
       setActiveDot(maxScroll === 0 ? 0 : Math.round((carousel.scrollLeft / maxScroll) * (pages - 1)));
     };
@@ -156,7 +161,7 @@ export default function CartSuggestedProductCarousel({ products = [], loading = 
 
       {dotCount > 1 && (
         <div className="mt-1.5 flex justify-center gap-1.5" aria-label="Carousel pages">
-          {Array?.from({ length: dotCount }, (_, index) => (
+          {Array.from({ length: Number.isFinite(dotCount) ? Math.max(1, dotCount) : 1 }, (_, index) => (
             <button
               key={index}
               type="button"

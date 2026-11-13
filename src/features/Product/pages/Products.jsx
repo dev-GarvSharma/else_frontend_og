@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { ArrowDownUp, ChevronDown } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProductCard from "../../../component/ProductCard";
 import ProductFilter from "../../../component/ProductFilter";
 import productsBanner from "../../../assets/Else Fragrances in Golden Jungle Light.png";
@@ -18,16 +17,21 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filters, setFilters] = useState({ minPrice: 0, maxPrice: 10000, categorySlug: "", note: "", sort: "popularity" });
   const limit = 10;
+  const updateFilters = useCallback((updates) => {
+    setFilters((current) => ({ ...current, ...updates }));
+    setPage(1);
+  }, []);
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const response = await getAllProductsList({
-        minPrice: 0,
-        maxPrice: 10000,
-        categorySlug: "",
-        note: "",
-        sort: "popularity",
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        categorySlug: filters.categorySlug,
+        note: filters.note,
+        sort: filters.sort,
         page: page,
         recordPerPage: limit,
       });
@@ -44,7 +48,7 @@ export default function Products() {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, limit]);
+  }, [page, limit, filters]);
   return (
     <main className="bg-[#faf9f6] px-4 pb-20 pt-0 text-neutral-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1800px]">
@@ -60,39 +64,9 @@ export default function Products() {
           />
         </section>
 
-        <div className="mt-8 flex items-start gap-6 sm:mt-12 lg:gap-8">
-          <ProductFilter />
-          <section className="min-w-0 flex-1" aria-label="Perfume products">
-            <div className="mb-5 flex flex-col gap-4 border-y border-neutral-200 py-4 sm:sticky sm:top-[68px] sm:z-20 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:bg-[#faf9f6]/95 sm:backdrop-blur-md">
-              <p className="text-sm text-neutral-600">
-                <span className="sm:hidden">1,492 perfumes</span>
-                <span className="hidden sm:inline">
-                  Now browsing{" "}
-                  <span className="font-medium text-neutral-900">1,492</span>{" "}
-                  perfumes
-                </span>
-              </p>
-              <ProductFilter compact />
-              <div className="hidden items-center gap-3 lg:flex">
-                <button
-                  type="button"
-                  className="h-10 rounded-xl border border-neutral-300 bg-white px-4 text-sm text-neutral-700 transition hover:border-neutral-500"
-                >
-                  Find My Scent
-                </button>
-                <button
-                  type="button"
-                  className="flex h-10 items-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 text-sm text-neutral-700 transition hover:border-neutral-500"
-                >
-                  <span>
-                    Sort by:{" "}
-                    <b className="font-medium text-neutral-900">Our Picks</b>
-                  </span>
-                  <ArrowDownUp size={15} />
-                  <ChevronDown size={15} />
-                </button>
-              </div>
-            </div>
+        <div className="mx-auto mt-8 max-w-[1016px]">
+          <section className="min-w-0" aria-label="Perfume products">
+            <ProductFilter filters={filters} onChange={updateFilters} />
             <div className="grid grid-cols-2 gap-1 sm:gap-3 xl:grid-cols-3 2xl:grid-cols-4">
               {loading ? (
                 <SkeletonGroup count={limit} className="col-span-full grid grid-cols-2 gap-1 sm:gap-3 xl:grid-cols-3 2xl:grid-cols-4">

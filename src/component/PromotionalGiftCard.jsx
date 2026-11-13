@@ -1,10 +1,10 @@
 
-import React from "react";
 import { Gift, Sparkles } from "lucide-react";
 
 const PromotionalGiftCard = ({
   cartSubtotal = 399,
   minimumSubtotal = 599,
+  promotionName = "Buy 2 Get 1 Free",
   product = {
     name: "Affection",
     size: "100 ml",
@@ -68,7 +68,7 @@ const PromotionalGiftCard = ({
           <div className="flex items-center gap-1">
             <Sparkles size={13} className="text-[#B77945]" />
             <span className="text-[11px] font-semibold text-[#3B2F2F]">
-              Buy 2 Get 1 Free
+              {promotionName}
             </span>
           </div>
 

@@ -18,6 +18,7 @@ import {
 } from "../features/Cart/cartSlice";
 import { getAllProductsList, getPromotions } from "../features/Product/api";
 import ProductCard from "./ProductCard";
+import { lockBodyScroll, unlockBodyScroll } from "../utils/bodyScrollLock";
 
 const FREE_GIFT_THRESHOLD = 2500;
 const imageUrlFor = (product) => {
@@ -122,10 +123,10 @@ export default function CartDrawer() {
       if (event.key === "Escape") dispatch(setCartOpen(false));
     };
     document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
+    lockBodyScroll("cart-drawer-component");
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
+      unlockBodyScroll("cart-drawer-component");
     };
   }, [isOpen, dispatch]);
 
@@ -177,8 +178,8 @@ export default function CartDrawer() {
             </div>
           ) : (
             <section aria-label="Items in your bag" className="my-3 overflow-hidden rounded-2xl border border-[#d9dfea] bg-white">
-              {items.map((item) => (
-                <article key={item.id} className={`flex items-start gap-2.5 p-3 sm:gap-3 sm:p-4 ${item.id !== items[0]?.id ? "border-t border-[#e0e5ee]" : ""}`}>
+              {items.map((item, index) => (
+                <article key={`${item.id}-${item.selectedVariantId ?? item.variants?.[0]?.id ?? "default"}`} className={`flex items-start gap-2.5 p-3 sm:gap-3 sm:p-4 ${index > 0 ? "border-t border-[#e0e5ee]" : ""}`}>
                   <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#e8edf6] bg-white sm:h-20 sm:w-20">
                     {imageUrlFor(item) && (
                       <img
@@ -192,7 +193,7 @@ export default function CartDrawer() {
                     <h3 className="line-clamp-1 text-[15px] font-semibold leading-tight text-[#2a2f36] sm:text-lg" title={item.name}>
                       {item.name || "Fragrance"}
                     </h3>
-                    <p className="text-xs text-[#8b91a0] sm:text-[13px]">{item.variants?.[0]?.options?.volumeMl ? `${item.variants[0].options.volumeMl} ml` : item.brand || ""}</p>
+                    <p className="text-xs text-[#8b91a0] sm:text-[13px]">{item.variants?.[0]?.options?.comboName || item.variants?.[0]?.options?.pack || (item.variants?.[0]?.options?.volumeMl ? `${item.variants[0].options.volumeMl} ml` : item.brand || "")}</p>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
                         <p className="text-base font-bold leading-tight text-[#13161b] sm:text-lg">{money(priceFor(item) * (item.quantity || 1))}</p>
@@ -207,10 +208,11 @@ export default function CartDrawer() {
                               ? dispatch(
                                   setCartQuantity({
                                     id: item.id,
+                                    variantId: item.selectedVariantId ?? item.variants?.[0]?.id,
                                     quantity: item.quantity - 1,
                                   }),
                                 )
-                              : dispatch(removeFromCart(item.id))
+                              : dispatch(removeFromCart({ id: item.id, variantId: item.selectedVariantId ?? item.variants?.[0]?.id }))
                           }
                           className="grid h-8 w-8 place-items-center text-[#3b6de8]"
                         >
@@ -225,6 +227,7 @@ export default function CartDrawer() {
                             dispatch(
                               setCartQuantity({
                                 id: item.id,
+                                variantId: item.selectedVariantId ?? item.variants?.[0]?.id,
                                 quantity: (item.quantity || 1) + 1,
                               }),
                             )
@@ -235,7 +238,7 @@ export default function CartDrawer() {
                         </button>
                       </div>
                       <button
-                        onClick={() => dispatch(removeFromCart(item.id))}
+                        onClick={() => dispatch(removeFromCart({ id: item.id, variantId: item.selectedVariantId ?? item.variants?.[0]?.id }))}
                         aria-label={`Remove ${item.name}`}
                         className="grid h-8 w-8 place-items-center rounded-xl bg-[#f5f6f9] text-[#7a8391] transition hover:bg-[#eceff6] hover:text-[#2c3644]"
                       >

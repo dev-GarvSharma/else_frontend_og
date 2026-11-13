@@ -1,7 +1,10 @@
-import React from "react";
 import { Truck, CheckCircle2 } from "lucide-react";
 
-const FreeDeliveryCard = ({ cartSubtotal = 399, minimumOrder = 499 }) => {
+const FreeDeliveryCard = ({
+  cartSubtotal = 399,
+  minimumOrder = Number(import.meta.env.VITE_MINIMUM_CART_AMOUNT) || 1499,
+  deliveryCharge = Number(import.meta.env.VITE_DELIVERY_CHARGE) || 0,
+}) => {
   const progress = Math.min((cartSubtotal / minimumOrder) * 100, 100);
 
   const remaining = Math.max(minimumOrder - cartSubtotal, 0);
@@ -17,7 +20,7 @@ const FreeDeliveryCard = ({ cartSubtotal = 399, minimumOrder = 499 }) => {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
             <p className="text-xs font-semibold text-[#3B2F2F]">
-              {isUnlocked ? "Free delivery unlocked" : "Free delivery"}
+              {isUnlocked ? "Free delivery unlocked" : "Delivery charge applies"}
             </p>
 
             {isUnlocked && (
@@ -28,11 +31,13 @@ const FreeDeliveryCard = ({ cartSubtotal = 399, minimumOrder = 499 }) => {
           <p className="text-[10px] text-gray-500">
             {isUnlocked
               ? "Your order qualifies for free shipping"
-              : `Add ₹${remaining} more to unlock`}
+              : `Add ₹${remaining.toLocaleString("en-IN")} more to unlock free delivery`}
           </p>
         </div>
 
-        <span className="text-[10px] font-semibold text-[#71866A]">FREE</span>
+        <span className={`text-[10px] font-semibold ${isUnlocked ? "text-[#71866A]" : "text-[#3B2F2F]"}`}>
+          {isUnlocked ? "FREE" : `₹${deliveryCharge.toLocaleString("en-IN")}`}
+        </span>
       </div>
 
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-[#EAE5DE]">
