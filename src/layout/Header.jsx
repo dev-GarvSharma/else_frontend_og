@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import SearchOverlay from "../component/SearchOverlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartOpen } from "../features/Cart/cartSlice";
+import { getCurrentUser, getIsLoggedIn, openAuthDialog } from "../features/Auth/authSlice";
 import { Link } from "react-router-dom";
 
 function SearchIcon() {
@@ -71,6 +72,8 @@ function BagIcon() {
 function Header() {
   const dispatch = useDispatch();
   const cartCount = useSelector((state) => state.cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0));
+  const isLoggedIn = useSelector(getIsLoggedIn);
+  const user = useSelector(getCurrentUser);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -138,7 +141,13 @@ function Header() {
           >
             <SearchIcon />
           </button>
-          <button type="button" aria-label="Account" className="hidden text-[#222] lg:block">
+          <button
+            type="button"
+            aria-label={isLoggedIn ? "Open account" : "Sign in"}
+            title={isLoggedIn ? user?.name || "Account" : "Sign in"}
+            onClick={() => dispatch(openAuthDialog())}
+            className="hidden text-[#222] lg:block"
+          >
             <UserIcon />
           </button>
           <button type="button" aria-label="Wishlist" className="hidden text-[#222] lg:block">

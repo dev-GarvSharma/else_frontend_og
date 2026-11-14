@@ -9,10 +9,18 @@ import CartDrawer from "../component/CartDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartOpen } from "../features/Cart/cartSlice";
 import Cart from "../component/Cart";
+import {
+  getCurrentUser,
+  getIsLoggedIn,
+  openAuthDialog,
+} from "../features/Auth/authSlice";
+import AuthDialog from "../features/Auth/AuthDialog";
 
 function MobileTabBar() {
   const dispatch = useDispatch();
   const cartCount = useSelector((state) => state.cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0));
+  const isLoggedIn = useSelector(getIsLoggedIn);
+  const user = useSelector(getCurrentUser);
   const tabs = [
     { label: "Home", to: "/", icon: House, end: true },
     { label: "Products", to: "/perfumes", icon: Store },
@@ -50,13 +58,15 @@ function MobileTabBar() {
         ))}
         <button
           type="button"
-          aria-label="Account"
+          aria-label={isLoggedIn ? "Open account" : "Sign in"}
+          title={isLoggedIn ? user?.name || "Account" : "Sign in"}
+          onClick={() => dispatch(openAuthDialog())}
           className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] hover:text-[#171717]"
         >
           <span className="grid h-8 w-12 place-items-center rounded-full text-[#777]">
             <UserRound size={18} strokeWidth={1.8} />
           </span>
-          <span>Account</span>
+          <span>{isLoggedIn ? "Account" : "Sign in"}</span>
         </button>
         <button
           type="button"
@@ -95,6 +105,7 @@ function Index() {
       </div>
       <MobileTabBar />
       <Cart />
+      <AuthDialog />
     </div>
   );
 }
