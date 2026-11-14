@@ -7,6 +7,9 @@ import Products from "./features/Product/pages/Products";
 import BlogArticles from "./features/Blogs/pages/BlogArticles";
 import BlogArticleDetails from "./features/Blogs/pages/BlogArticleDetails";
 import NotFound from "./component/NotFound";
+import Checkout from "./features/Checkout/pages/Checkout";
+import Orders from "./features/Account/pages/Orders";
+import Addresses from "./features/Account/pages/Addresses";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -30,6 +33,9 @@ function App() {
           <Route path="perfume/:id" element={<ProductDetails />} />
           <Route path="blogs" element={<BlogArticles />} />
           <Route path="blogs/:slug" element={<BlogArticleDetails />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="account/orders" element={<Orders />} />
+          <Route path="account/addresses" element={<Addresses />} />
         </Route>
       </Routes>
     </Router>

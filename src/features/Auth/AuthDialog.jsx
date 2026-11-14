@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { ClipboardList, MapPin, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import LocalStorageService from "../../app/localStorageService";
 import {
   clearAuthSession,
@@ -23,6 +24,7 @@ const responseData = (response) => response?.data?.data;
 
 export default function AuthDialog() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isOpen = useSelector(getAuthDialogOpen);
   const isLoggedIn = useSelector(getIsLoggedIn);
   const user = useSelector(getCurrentUser);
@@ -214,12 +216,30 @@ export default function AuthDialog() {
             <h2 id="auth-dialog-title" className="text-2xl font-medium">{user?.name || "You're signed in"}</h2>
             {user?.email && <p className="mt-2 text-sm text-[#777]">{user.email}</p>}
             {user?.phone && <p className="mt-1 text-sm text-[#777]">{user.phone}</p>}
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => { dispatch(closeAuthDialog()); navigate("/account/orders"); }}
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#dedad5] px-3 py-3 text-sm font-medium transition hover:bg-[#f8f6f3]"
+              >
+                <ClipboardList size={17} aria-hidden="true" />
+                My orders
+              </button>
+              <button
+                type="button"
+                onClick={() => { dispatch(closeAuthDialog()); navigate("/account/addresses"); }}
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#dedad5] px-3 py-3 text-sm font-medium transition hover:bg-[#f8f6f3]"
+              >
+                <MapPin size={17} aria-hidden="true" />
+                Addresses
+              </button>
+            </div>
             {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
             <button
               type="button"
               onClick={signOut}
               disabled={busy}
-              className="mt-7 w-full rounded-full border border-[#d8d3ce] px-5 py-3 text-sm font-medium transition hover:bg-[#f8f6f3] disabled:opacity-50"
+              className="mt-4 w-full rounded-full border border-[#d8d3ce] px-5 py-3 text-sm font-medium transition hover:bg-[#f8f6f3] disabled:opacity-50"
             >
               {busy ? "Signing out…" : "Sign out"}
             </button>

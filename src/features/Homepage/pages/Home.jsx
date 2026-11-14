@@ -208,7 +208,7 @@ function Home() {
     <div>
       <nav
         aria-label="Shop by category"
-        className="flex w-full items-start justify-between gap-2 overflow-x-auto bg-white px-3 py-2 sm:justify-center sm:gap-7 sm:px-8 sm:py-3"
+        className="flex w-full items-start justify-between gap-1 overflow-x-auto bg-white px-2 py-2 sm:justify-center sm:gap-7 sm:px-8 sm:py-3"
       >
         {categoryLoading ? (
           <SkeletonGroup count={4} className="flex w-full items-start justify-between gap-3 sm:justify-center sm:gap-7">
@@ -218,24 +218,24 @@ function Home() {
           <a
             href="perfumes"
             key={category.id}
-            className="group flex min-w-[62px] shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-[#171717] sm:min-w-[72px] sm:gap-1.5 sm:text-[11px]"
+            className="group flex w-[52px] shrink-0 flex-col items-center gap-1 text-center text-[9px] font-semibold text-[#171717] sm:w-auto sm:min-w-[72px] sm:gap-1.5 sm:text-[11px]"
           >
             <span
-              className={`relative grid h-14 w-14 place-items-center rounded-full bg-white shadow-[0_3px_10px_rgba(69,42,25,0.1)] transition-shadow duration-300 group-hover:shadow-[0_7px_18px_rgba(69,42,25,0.18)] sm:h-[76px] sm:w-[76px] sm:shadow-[0_5px_16px_rgba(69,42,25,0.12)] ${index % 2 === 0 ? "ring-1 ring-[#b32136] ring-offset-1 ring-offset-[#fffaf4] sm:ring-2 sm:ring-offset-2" : "ring-1 ring-[#a58b54] ring-offset-1 ring-offset-[#fffaf4] sm:ring-2 sm:ring-offset-2"}`}
+              className={`relative grid h-12 w-12 place-items-center rounded-full bg-white shadow-[0_3px_10px_rgba(69,42,25,0.1)] transition-shadow duration-300 group-hover:shadow-[0_7px_18px_rgba(69,42,25,0.18)] sm:h-[76px] sm:w-[76px] sm:shadow-[0_5px_16px_rgba(69,42,25,0.12)] ${index % 2 === 0 ? "ring-1 ring-[#b32136] ring-offset-1 ring-offset-[#fffaf4] sm:ring-2 sm:ring-offset-2" : "ring-1 ring-[#a58b54] ring-offset-1 ring-offset-[#fffaf4] sm:ring-2 sm:ring-offset-2"}`}
             >
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[radial-gradient(circle_at_35%_28%,#fffefb_0%,#f8ead4_100%)] sm:h-[64px] sm:w-[64px]">
+              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_35%_28%,#fffefb_0%,#f8ead4_100%)] sm:h-[64px] sm:w-[64px]">
                 <img
-                  src={`${imageBaseUrl}${category.image}` || categoryImage}
+                  src={category.image ? `${imageBaseUrl}${category.image}` : categoryImage}
                   alt=""
                   aria-hidden="true"
-                  className="h-5 w-5 object-contain transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6"
+                  className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
                 />
               </span>
               <span className="absolute -bottom-1 hidden rounded-full border border-white bg-[#a9182d] px-2 py-0.5 text-[8px] font-bold leading-none tracking-[0.08em] text-white shadow-sm sm:block">
                 {category?.name}
               </span>
             </span>
-            <span className="whitespace-nowrap transition-colors group-hover:text-[#a9182d]">
+            <span className="max-w-full truncate whitespace-nowrap transition-colors group-hover:text-[#a9182d] sm:max-w-none">
               {category?.name || "Category"}
             </span>
           </a>

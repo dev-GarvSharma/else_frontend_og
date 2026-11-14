@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import {
   removeFromCart,
@@ -34,6 +35,7 @@ const priceFor = (product) =>
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 export default function Cart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const minimumOrder = Number(import.meta.env.VITE_MINIMUM_CART_AMOUNT) || 1499;
   const deliveryCharge = Number(import.meta.env.VITE_DELIVERY_CHARGE) || 0;
   const [products, setProducts] = useState([]);
@@ -353,6 +355,10 @@ export default function Cart() {
 
           <button
             disabled={!items.length}
+            onClick={() => {
+              dispatch(setCartOpen(false));
+              navigate("/checkout");
+            }}
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#171717] py-4 text-[10px] font-medium uppercase tracking-[.2em] text-white transition hover:bg-[#38302c] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Continue to checkout

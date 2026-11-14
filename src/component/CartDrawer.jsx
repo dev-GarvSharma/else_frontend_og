@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   ArrowRight,
@@ -38,6 +39,7 @@ const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
 export default function CartDrawer() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { items, isOpen } = useSelector((state) => state.cart);
   const [promotions, setPromotions] = useState([]);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -280,6 +282,10 @@ export default function CartDrawer() {
           </div>
           <button
             disabled={!items.length}
+            onClick={() => {
+              dispatch(setCartOpen(false));
+              navigate("/checkout");
+            }}
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#171717] py-4 text-[10px] font-medium uppercase tracking-[.2em] text-white transition hover:bg-[#38302c] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Continue to checkout <ArrowRight size={14} />
