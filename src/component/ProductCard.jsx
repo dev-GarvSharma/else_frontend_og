@@ -105,6 +105,11 @@ export default function ProductCard({
       : `${imageBaseUrl}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
+  const isOutOfStock = (variant) => {
+    const stock = variant?.stock ?? variant?.stockQuantity ?? variant?.inventoryQuantity ?? variant?.quantityAvailable ?? variant?.inventory?.quantity;
+    return stock != null && Number(stock) <= 0;
+  };
+
   if (compact) {
     return (
       <article className="group relative flex min-h-[205px] w-full flex-col overflow-hidden rounded-xl border border-[#d9dfea] bg-white p-1.5 text-neutral-900 shadow-sm transition-shadow hover:shadow-md sm:min-h-[218px] sm:p-2">
@@ -384,6 +389,7 @@ export default function ProductCard({
                     const volume = variantLabel(variant);
                     const priceValue = Number(variant.price || 0);
                     const compareValue = Number(variant.compareAtPrice || 0);
+                    const outOfStock = isOutOfStock(variant);
                     return (
                       <button
                         key={variant.id}
@@ -406,6 +412,7 @@ export default function ProductCard({
                           <span className="block text-xs font-bold text-neutral-900">
                             {volume}
                           </span>
+                          {outOfStock && <span className="mt-1 block text-xs font-semibold text-red-600">Out of stock</span>}
                           {variant.options?.comboName && (
                             <span className="mt-0.5 block truncate text-xs text-neutral-500">
                               {variant.options.quantity
@@ -459,7 +466,7 @@ export default function ProductCard({
               <footer className="shrink-0 border-t border-neutral-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6">
                 <button
                   type="button"
-                  disabled={!item.variants?.length}
+                  disabled={!item.variants?.length || isOutOfStock(item.variants.find((variant) => variant.id === selectedVariantId) || item.variants[0])}
                   onClick={() =>
                     addSelectedVariant(
                       item.variants.find(
@@ -469,7 +476,7 @@ export default function ProductCard({
                   }
                   className="flex min-h-12 w-full items-center justify-center rounded-xl bg-neutral-900 px-4 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
                 >
-                  Add to cart{" "}
+                  {isOutOfStock(item.variants.find((variant) => variant.id === selectedVariantId) || item.variants[0]) ? "Out of stock" : "Add to cart"}{" "}
                   {selectedVariantId
                     ? `· ${formatPrice(item.variants.find((variant) => variant.id === selectedVariantId)?.price || 0)}`
                     : ""}

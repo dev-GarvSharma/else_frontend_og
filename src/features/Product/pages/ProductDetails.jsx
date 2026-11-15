@@ -225,6 +225,8 @@ export default function ProductDetails() {
   const toSize = (variant) => {
     const volume = variant.options?.volumeMl;
     const price = Number(variant.price) || 0;
+    const stock = variant.stock ?? variant.stockQuantity ?? variant.inventoryQuantity ?? variant.quantityAvailable ?? variant.inventory?.quantity;
+    const outOfStock = stock != null && Number(stock) <= 0;
     return {
       ml: `${volume || variant.sku || "Size"}ml`,
       sprays: variant.sprays ? `${variant.sprays} SPRAYS` : "",
@@ -234,6 +236,7 @@ export default function ProductDetails() {
         ? formatPrice(variant.compareAtPrice)
         : "",
       image: resolveImage(variant.images?.[0] || product.images?.[0]?.path),
+      outOfStock,
     };
   };
   const sizes = activeVariants.map(toSize);
@@ -454,6 +457,7 @@ export default function ProductDetails() {
                   <b>{s.ml}</b>
                   <small>{s.sprays}</small>
                   <small>{s.price}</small>
+                  {s.outOfStock && <small className="!text-red-600">Out of stock</small>}
                 </button>
               ))}
             </div>
@@ -462,12 +466,12 @@ export default function ProductDetails() {
                 <PackageCheck size={14} /> {product.deliveryMessage}
               </p>
             )}
-            <button className="pd-add mt-5" onClick={() => {
+            <button className="pd-add mt-5" disabled={selectedSize?.outOfStock} onClick={() => {
               dispatch(addToCart({ ...product, name: productName, brand: productBrand, images: product?.images?.length ? product.images.map((image) => typeof image === "string" ? { path: image } : image) : [{ path: productImage }], variants: selectedVariant ? [selectedVariant] : product?.variants }));
               setCart(true);
             }}>
               <ShoppingBag size={15} />
-              {cart ? "Added to Cart" : "Add to Cart"}
+              {selectedSize?.outOfStock ? "Out of stock" : cart ? "Added to Cart" : "Add to Cart"}
             </button>
             {product.bundleOffer && (
               <div className="pd-bundle">
