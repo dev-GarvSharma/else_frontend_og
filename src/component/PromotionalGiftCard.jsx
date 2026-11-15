@@ -1,9 +1,9 @@
 
-import { Gift, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const PromotionalGiftCard = ({
-  cartSubtotal = 399,
-  minimumSubtotal = 599,
+  cartSubtotal = 0,
+  minimumSubtotal = 0,
   promotionName = "Buy 2 Get 1 Free",
   product = {
     name: "Affection",
@@ -13,19 +13,21 @@ const PromotionalGiftCard = ({
       "/uploads/f5a972d8-db73-49d0-84a9-a694d0182c5d.png",
   },
 }) => {
-  const progress = Math.min(
-    (cartSubtotal / minimumSubtotal) * 100,
-    100
-  );
-
+  const [applied, setApplied] = useState(false);
+  const threshold = Number(minimumSubtotal) || 0;
+  const progress = threshold > 0 ? Math.min((cartSubtotal / threshold) * 100, 100) : 100;
   const remaining = Math.max(minimumSubtotal - cartSubtotal, 0);
-  const isUnlocked = cartSubtotal >= minimumSubtotal;
+  const isUnlocked = cartSubtotal >= threshold;
+
+  useEffect(() => {
+    if (!isUnlocked) setApplied(false);
+  }, [isUnlocked]);
 
   return (
-    <div className="w-full rounded-xl border border-[#E8D8C8] bg-[#FBF8F4] p-2">
+    <div className={`w-full rounded-xl border p-2 shadow-[0_2px_8px_rgba(0,0,0,.05)] transition-colors ${applied ? "border-[#78a887] bg-[#f4faf5]" : "border-[#E8D8C8] bg-white"}`}>
       {/* Gift Product */}
       <div className="flex items-center gap-2">
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#F1E9E0]">
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#F1E9E0] p-1">
           <img
             src={product.image}
             alt={product.name}
@@ -57,23 +59,37 @@ const PromotionalGiftCard = ({
           </div>
         </div>
 
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F0E2D3]">
-          <Gift size={17} className="text-[#A66A3F]" />
-        </div>
+        {applied ? (
+          <button
+            type="button"
+            onClick={() => setApplied(false)}
+            className="shrink-0 rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-xs font-semibold text-neutral-600 transition-colors hover:border-neutral-400 hover:text-neutral-900"
+          >
+            Remove
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={!isUnlocked}
+            onClick={() => setApplied(true)}
+            className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors ${isUnlocked ? "border-[#24211e] bg-[#24211e] text-white hover:bg-[#403a34]" : "cursor-not-allowed border-[#e8e2da] bg-[#f0ece7] text-[#aaa39a]"}`}
+          >
+            Apply
+          </button>
+        )}
       </div>
 
       {/* Offer Progress */}
       <div className="mt-2 border-t border-[#E9DED3] pt-2">
         <div className="mb-1.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
-            <Sparkles size={13} className="text-[#B77945]" />
             <span className="text-[11px] font-semibold text-[#3B2F2F]">
               {promotionName}
             </span>
           </div>
 
           <span className="text-[10px] font-semibold text-[#A66A3F]">
-            {isUnlocked ? "Unlocked!" : "Gift unlocked at ₹599"}
+            {isUnlocked ? "Unlocked!" : `Gift unlocked at ₹${threshold.toLocaleString("en-IN")}`}
           </span>
         </div>
 
@@ -86,12 +102,12 @@ const PromotionalGiftCard = ({
 
         <div className="mt-1 flex items-center justify-between text-[10px]">
           <span className="text-gray-500">
-            ₹{cartSubtotal} / ₹{minimumSubtotal}
+            ₹{Number(cartSubtotal).toLocaleString("en-IN")} / ₹{threshold.toLocaleString("en-IN")}
           </span>
 
           <span className="font-semibold text-[#A66A3F]">
             {isUnlocked
-              ? "Your free gift is unlocked 🎉"
+              ? "Your free gift is unlocked"
               : `Add ₹${remaining} more`}
           </span>
         </div>

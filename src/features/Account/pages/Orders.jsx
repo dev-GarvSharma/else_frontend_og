@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, PackageCheck } from "lucide-react";
+import { ArrowLeft, MapPin, PackageCheck } from "lucide-react";
 import { getMyOrders } from "../api";
 import AccountGate from "../AccountGate";
 
@@ -126,6 +126,35 @@ function OrdersContent() {
                   </span>
                 </div>
               </div>
+              {order.shippingAddress && (
+                <div
+                  aria-label="Delivery address"
+                  className="mx-5 my-2.5 flex items-start gap-2.5 rounded-xl border border-[#eeeae4] bg-[#faf9f6] px-3 py-2.5 sm:mx-6"
+                >
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-neutral-500 ring-1 ring-black/[0.04]">
+                    <MapPin size={14} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-neutral-500">Delivering to</span>
+                      <span className="text-xs font-semibold text-neutral-800">{order.shippingAddress.recipient || "Saved address"}</span>
+                      {order.shippingAddress.phone && <span className="text-[11px] text-neutral-500">{order.shippingAddress.phone}</span>}
+                    </div>
+                    <p className="mt-0.5 text-xs leading-4 text-neutral-600">
+                      {[
+                      order.shippingAddress.line1,
+                      order.shippingAddress.line2,
+                      order.shippingAddress.city,
+                      order.shippingAddress.state,
+                      order.shippingAddress.postalCode,
+                      order.shippingAddress.country,
+                    ]
+                      .filter(Boolean)
+                      .join(", ") || "Address details unavailable"}
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="divide-y divide-neutral-100 px-5 sm:px-6">
                 {(order.items || []).map((item) => {
                   const option = item.variantOptions || {};

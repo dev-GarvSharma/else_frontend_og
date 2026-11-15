@@ -5,7 +5,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { House, ShoppingBag, Store, UserRound } from "lucide-react";
 import FestiveBanner from "../component/FestiveBanner";
-import CartDrawer from "../component/CartDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartOpen } from "../features/Cart/cartSlice";
 import Cart from "../component/Cart";

@@ -76,10 +76,10 @@ export default function Checkout() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState(null);
+  const [couponError, setCouponError] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [confirmedTotals, setConfirmedTotals] = useState(null);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
 
@@ -107,7 +107,7 @@ export default function Checkout() {
       ? Math.min(beforeCap, subtotal)
       : 0;
   }, [coupon, subtotal]);
-  const shipping = subtotal - discount >= 2999 ? 0 : 99;
+  const shipping = subtotal - discount >= Number(import.meta.env.VITE_MINIMUM_CART_AMOUNT) ? 0 : Number(import.meta.env.VITE_DELIVERY_CHARGE || 0);
   const total = subtotal - discount + shipping;
 
   useEffect(() => {
@@ -140,12 +140,15 @@ export default function Checkout() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (user?.name || user?.phone)
+    if (!user?.name && !user?.phone) return undefined;
+    const timer = window.setTimeout(() => {
       setAddressForm((form) => ({
         ...form,
         recipient: form.recipient || user.name || "",
         phone: form.phone || user.phone || "",
       }));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [user]);
 
   const beginAddressEdit = (address) => {
@@ -191,17 +194,28 @@ export default function Checkout() {
     setBusy(true);
     setError("");
     setNotice("");
+    setCouponError("");
     try {
+      const cartResult = await syncCart(
+        items.map((item) => ({
+          variantId: selectedVariant(item)?.id,
+          quantity: Number(item.quantity || 1),
+        })),
+      );
+      if (!cartResult?.success)
+        throw new Error(cartResult?.message || "We couldn't check this coupon against your cart.");
       const result = await validateCoupon(couponInput.trim().toUpperCase());
       const validCoupon = responseData(result);
-      if (!result?.success || !validCoupon?.code)
-        throw new Error(result?.message || "That coupon couldn't be applied.");
+      const eligibility = validCoupon?.eligible ?? validCoupon?.isEligible ?? validCoupon?.valid;
+      const alreadyUsed = validCoupon?.alreadyUsed || validCoupon?.isAlreadyUsed || validCoupon?.usedByUser;
+      if (!result?.success || !validCoupon?.code || eligibility === false || alreadyUsed)
+        throw new Error(result?.message || validCoupon?.message || (alreadyUsed ? "This coupon has already been used on your account." : "That coupon couldn't be applied."));
       setCoupon(validCoupon);
       setCouponInput(validCoupon.code);
       setNotice(`Coupon ${validCoupon.code} applied.`);
     } catch (requestError) {
       setCoupon(null);
-      setError(requestError.message || "That coupon couldn't be applied.");
+      setCouponError(requestError.message || "That coupon couldn't be applied.");
     } finally {
       setBusy(false);
     }
@@ -222,6 +236,7 @@ export default function Checkout() {
     }
     setBusy(true);
     setError("");
+    setCouponError("");
     setNotice("");
     try {
       const cartResult = await syncCart(
@@ -236,7 +251,7 @@ export default function Checkout() {
         );
       const orderResult = await createOrder({
         address: selectedAddress,
-        paymentMode: paymentMethod,
+        paymentMode: "UPI",
         couponCode: coupon?.code,
       });
       const orderData = responseData(orderResult);
@@ -293,7 +308,12 @@ export default function Checkout() {
       });
       checkout.open();
     } catch (requestError) {
-      setError(requestError.message || "Checkout couldn't be completed.");
+      const message = requestError.message || "Checkout couldn't be completed.";
+      if (coupon && /coupon|promo|redeemed|already used/i.test(message)) {
+        setCouponError(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setBusy(false);
     }
@@ -379,7 +399,6 @@ export default function Checkout() {
               <dl className="mt-3 space-y-2.5 text-sm">
                 <div className="flex justify-between gap-3"><dt className="text-neutral-600">Status</dt><dd className="font-medium">{orderConfirmation.status || "Processing"}</dd></div>
                 <div className="flex justify-between gap-3"><dt className="text-neutral-600">Payment</dt><dd className="font-medium">{orderConfirmation.paymentStatus || "Received"}</dd></div>
-                {orderConfirmation.paymentMethod && <div className="flex justify-between gap-3"><dt className="text-neutral-600">Method</dt><dd className="font-medium">{orderConfirmation.paymentMethod}</dd></div>}
                 {orderConfirmation.createdAt && <div className="flex justify-between gap-3"><dt className="text-neutral-600">Placed</dt><dd className="text-right font-medium">{new Date(orderConfirmation.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</dd></div>}
               </dl>
               <div className="mt-4 space-y-2.5 border-t border-neutral-200 pt-4 text-sm">
@@ -413,18 +432,18 @@ export default function Checkout() {
     );
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-9 text-[#171717] sm:px-7 sm:py-14">
+    <main className="mx-auto max-w-6xl px-4 py-4 text-[#171717] sm:px-7 sm:py-6">
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-black"
       >
         <ArrowLeft size={16} /> Continue shopping
       </Link>
-      <h1 className="mt-5 text-3xl font-medium sm:text-4xl">Checkout</h1>
+      <h1 className="mt-3 text-2xl font-medium sm:text-3xl">Checkout</h1>
       {notice && (
         <p
           role="status"
-          className="mt-5 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800"
+          className="mt-2 rounded-lg bg-green-50 px-3 py-2 text-xs text-green-800"
         >
           {notice}
         </p>
@@ -432,25 +451,25 @@ export default function Checkout() {
       {error && (
         <p
           role="alert"
-          className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="mt-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs leading-4 text-red-700"
         >
           {error}
         </p>
       )}
 
       {items.length > 0 && (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-black/10 bg-white p-5 sm:p-7">
-              <h2 className="flex items-center gap-2 text-xl font-medium">
-                <MapPin size={19} /> Delivery address
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-4">
+            <section className="rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
+              <h2 className="flex items-center gap-2 text-lg font-medium">
+                <MapPin size={17} /> Delivery address
               </h2>
               {!showAddressForm && addresses.length > 0 && (
-                <div className="mt-5 space-y-3">
+                <div className="mt-3 space-y-2">
                   {addresses.map((address) => (
                     <div
                       key={address.id}
-                      className={`flex items-start gap-3 rounded-xl border p-4 ${selectedAddressId === address.id ? "border-[#171717] bg-[#faf9f6]" : "border-neutral-200"}`}
+                      className={`flex items-start gap-3 rounded-xl border p-3 ${selectedAddressId === address.id ? "border-[#171717] bg-[#faf9f6]" : "border-neutral-200"}`}
                     >
                       <input
                         type="radio"
@@ -509,7 +528,7 @@ export default function Checkout() {
               {showAddressForm && (
                 <form
                   onSubmit={saveAddress}
-                  className="mt-5 grid gap-4 sm:grid-cols-2"
+                  className="mt-3 grid gap-3 sm:grid-cols-2"
                 >
                   {[
                     ["recipient", "Full name"],
@@ -540,7 +559,7 @@ export default function Checkout() {
                             ? "postal-code"
                             : "shipping " + name
                         }
-                        className="mt-1.5 w-full rounded-xl border border-neutral-300 px-3.5 py-3 font-normal outline-none focus:border-neutral-800"
+                        className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2.5 font-normal outline-none focus:border-neutral-800"
                       />
                     </label>
                   ))}
@@ -561,7 +580,7 @@ export default function Checkout() {
                   <div className="flex gap-3 sm:col-span-2">
                     <button
                       disabled={busy}
-                      className="rounded-full bg-[#171717] px-6 py-3 text-sm text-white disabled:opacity-50"
+                      className="rounded-full bg-[#171717] px-5 py-2.5 text-sm text-white disabled:opacity-50"
                     >
                       {busy ? "Saving…" : "Save address"}
                     </button>
@@ -572,7 +591,7 @@ export default function Checkout() {
                           setShowAddressForm(false);
                           setEditingAddressId(null);
                         }}
-                        className="rounded-full border border-neutral-300 px-6 py-3 text-sm"
+                        className="rounded-full border border-neutral-300 px-5 py-2.5 text-sm"
                       >
                         Cancel
                       </button>
@@ -582,76 +601,42 @@ export default function Checkout() {
               )}
             </section>
 
-            <section className="rounded-2xl border border-black/10 bg-white p-5 sm:p-7">
-              <h2 className="flex items-center gap-2 text-xl font-medium">
-                <Tag size={19} /> Coupon code
-              </h2>
-              <form onSubmit={applyCoupon} className="mt-4 flex gap-2">
-                <input
-                  value={couponInput}
-                  onChange={(event) => setCouponInput(event.target.value)}
-                  placeholder="Enter coupon code"
-                  className="min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-3 uppercase outline-none focus:border-neutral-800"
-                />
-                <button
-                  disabled={busy || !couponInput.trim()}
-                  className="rounded-xl bg-[#171717] px-5 text-sm text-white disabled:opacity-50"
-                >
-                  Apply
-                </button>
-              </form>
-              {coupon && (
-                <div className="mt-3 flex items-center justify-between text-sm text-green-800">
-                  <span className="flex items-center gap-2">
-                    <Check size={16} /> {coupon.code} applied
-                  </span>
-                  <button
-                    onClick={() => {
-                      setCoupon(null);
-                      setCouponInput("");
-                    }}
-                    className="underline"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-              {coupon && subtotal < Number(coupon.minOrder || 0) && (
-                <p className="mt-2 text-xs text-amber-700">
-                  This coupon needs an order subtotal of{" "}
-                  {money(coupon.minOrder)}. It will be checked again at payment.
-                </p>
-              )}
-            </section>
-
-            <section className="rounded-2xl border border-black/10 bg-white p-5 sm:p-7">
-              <h2 className="text-xl font-medium">Payment method</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {[
-                  ["UPI", "UPI"],
-                  ["CARD", "Credit or debit card"],
-                ].map(([value, label]) => (
-                  <label
-                    key={value}
-                    className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 text-sm ${paymentMethod === value ? "border-[#171717] bg-[#faf9f6]" : "border-neutral-200"}`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      checked={paymentMethod === value}
-                      onChange={() => setPaymentMethod(value)}
-                      className="accent-[#171717]"
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            </section>
           </div>
 
           <aside className="h-fit rounded-2xl border border-black/10 bg-white p-5 sm:p-6 lg:sticky lg:top-8">
             <h2 className="text-xl font-medium">Order summary</h2>
-            <div className="mt-5 max-h-72 space-y-4 overflow-y-auto">
+            <form onSubmit={applyCoupon} className="mt-4 rounded-xl border border-neutral-200 bg-[#faf9f6] p-3">
+              <label htmlFor="checkout-coupon" className="flex items-center gap-2 text-xs font-semibold text-neutral-700"><Tag size={14} /> Coupon code</label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id="checkout-coupon"
+                  value={couponInput}
+                  onChange={(event) => {
+                    setCouponInput(event.target.value);
+                    setCouponError("");
+                    setNotice("");
+                  }}
+                  placeholder="Enter code"
+                  disabled={Boolean(coupon)}
+                  className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs uppercase outline-none focus:border-neutral-800 disabled:bg-neutral-100"
+                />
+                {coupon ? (
+                  <button type="button" onClick={() => {
+                    setCoupon(null);
+                    setCouponInput("");
+                    setCouponError("");
+                    setNotice("");
+                    setError((current) => /coupon|promo|redeemed|already used/i.test(current) ? "" : current);
+                  }} className="rounded-lg border border-neutral-300 px-3 text-xs font-medium">Remove</button>
+                ) : (
+                  <button disabled={busy || !couponInput.trim()} className="rounded-lg bg-[#171717] px-4 text-xs font-medium text-white disabled:opacity-50">Apply</button>
+                )}
+              </div>
+              {coupon && <p className="mt-2 text-[11px] text-green-800">{coupon.code} applied</p>}
+              {coupon && subtotal < Number(coupon.minOrder || 0) && <p className="mt-1 text-[11px] text-amber-700">Minimum order: {money(coupon.minOrder)}</p>}
+              {couponError && <p role="alert" className="mt-2 rounded-md bg-red-50 px-2.5 py-2 text-[11px] leading-4 text-red-700">{couponError}</p>}
+            </form>
+            <div className="mt-4 max-h-72 space-y-4 overflow-y-auto">
               {items.map((item) => {
                 const variant = selectedVariant(item);
                 const volume = variant?.options?.volumeMl;
