@@ -81,6 +81,7 @@ export default function Checkout() {
   const [busy, setBusy] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [confirmedTotals, setConfirmedTotals] = useState(null);
+  const [orderConfirmation, setOrderConfirmation] = useState(null);
 
   const selectedAddress = addresses.find(
     (address) => address.id === selectedAddressId,
@@ -247,9 +248,7 @@ export default function Checkout() {
       if (order) setConfirmedTotals(order);
       if (!payment) {
         dispatch(clearCart());
-        setNotice(
-          `Order ${order?.orderNumber || "placed"} received successfully.`,
-        );
+        setOrderConfirmation(order);
         return;
       }
       const ready = await loadRazorpay();
@@ -277,10 +276,8 @@ export default function Checkout() {
               throw new Error(
                 verified?.message || "Payment verification failed.",
               );
+            setOrderConfirmation(responseData(verified) || order);
             dispatch(clearCart());
-            setNotice(
-              `Payment successful. Order ${order.orderNumber} is confirmed.`,
-            );
           } catch (requestError) {
             setError(
               requestError.message || "We couldn't verify this payment.",
@@ -317,6 +314,90 @@ export default function Checkout() {
         </button>
       </main>
     );
+
+  if (orderConfirmation) {
+    const confirmationItems = Array.isArray(orderConfirmation.items)
+      ? orderConfirmation.items
+      : [];
+    const address = orderConfirmation.shippingAddress || selectedAddress || {};
+    const addressLine = [
+      address.line1,
+      address.line2,
+      address.city,
+      address.state,
+      address.postalCode,
+      address.country,
+    ].filter(Boolean).join(", ");
+    const confirmationImage = (item) => {
+      const path = item.productSnapshot?.image || item.product?.images?.[0]?.path;
+      if (!path || /^(https?:)?\/\//i.test(path)) return path || "";
+      const base = import.meta.env.VITE_IMAGE_BASE_URL || "";
+      return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+    };
+    return (
+      <main className="mx-auto max-w-6xl px-4 py-5 text-[#171717] sm:px-7 sm:py-7">
+        <section className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 bg-[#f5f4ef] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-6">
+            <div className="flex items-center gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-green-100 text-green-700"><Check size={24} /></span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Order placed</p>
+                <h1 className="mt-1 text-2xl font-medium sm:text-3xl">Thank you for your order</h1>
+                <p className="mt-1 text-sm text-neutral-600">We’ve received your order and will keep you updated.</p>
+              </div>
+            </div>
+            <p className="inline-flex w-fit rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold">Order {orderConfirmation.orderNumber || "confirmed"}</p>
+          </div>
+          <div className="grid gap-6 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] sm:gap-8 sm:p-7">
+            <div>
+              <h2 className="text-base font-semibold">Items in your order</h2>
+              <div className="mt-4 divide-y divide-neutral-200">
+                {confirmationItems.map((item) => {
+                  const options = item.variantOptions || item.variantSnapshot?.options || {};
+                  const variantLabel = options.volumeMl ? `${options.volumeMl} ml` : options.pack || options.comboName || item.sku || "";
+                  return <div key={item.id || `${item.productId}-${item.variantId}`} className="flex items-center gap-3 py-3">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#f7f6f3]">
+                      {confirmationImage(item) && <img src={confirmationImage(item)} alt="" className="h-full w-full object-contain p-1" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{item.name || item.product?.name || "Fragrance"}</p>
+                      <p className="mt-1 text-xs text-neutral-500">{variantLabel}{variantLabel ? " · " : ""}Qty {item.quantity || 1}</p>
+                    </div>
+                    <strong className="text-sm">{money(Number(item.unitPrice || 0) * Number(item.quantity || 1))}</strong>
+                  </div>;
+                })}
+              </div>
+              <div className="mt-3 border-t border-neutral-200 pt-4">
+                <h2 className="text-base font-semibold">Delivery address</h2>
+                <p className="mt-2 text-sm font-medium">{address.recipient || user?.name}</p>
+                <p className="mt-1 text-sm leading-6 text-neutral-600">{addressLine || "Address details unavailable"}</p>
+                {address.phone && <p className="mt-1 text-sm text-neutral-600">{address.phone}</p>}
+              </div>
+            </div>
+            <aside className="h-fit rounded-2xl bg-[#faf9f6] p-5">
+              <h2 className="text-base font-semibold">Order details</h2>
+              <dl className="mt-3 space-y-2.5 text-sm">
+                <div className="flex justify-between gap-3"><dt className="text-neutral-600">Status</dt><dd className="font-medium">{orderConfirmation.status || "Processing"}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-neutral-600">Payment</dt><dd className="font-medium">{orderConfirmation.paymentStatus || "Received"}</dd></div>
+                {orderConfirmation.paymentMethod && <div className="flex justify-between gap-3"><dt className="text-neutral-600">Method</dt><dd className="font-medium">{orderConfirmation.paymentMethod}</dd></div>}
+                {orderConfirmation.createdAt && <div className="flex justify-between gap-3"><dt className="text-neutral-600">Placed</dt><dd className="text-right font-medium">{new Date(orderConfirmation.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</dd></div>}
+              </dl>
+              <div className="mt-4 space-y-2.5 border-t border-neutral-200 pt-4 text-sm">
+                <div className="flex justify-between"><span className="text-neutral-600">Subtotal</span><span>{money(orderConfirmation.subtotal)}</span></div>
+                {Number(orderConfirmation.discount) > 0 && <div className="flex justify-between"><span className="text-neutral-600">Discount</span><span>−{money(orderConfirmation.discount)}</span></div>}
+                <div className="flex justify-between"><span className="text-neutral-600">Delivery</span><span>{Number(orderConfirmation.shipping) ? money(orderConfirmation.shipping) : "Free"}</span></div>
+                <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-semibold"><span>Total paid</span><span>{money(orderConfirmation.total)}</span></div>
+              </div>
+            </aside>
+          </div>
+          <div className="flex flex-col gap-3 border-t border-neutral-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
+            <Link to="/account/orders" className="rounded-full bg-[#171717] px-6 py-2.5 text-center text-sm font-medium text-white">View my orders</Link>
+            <Link to="/perfumes" className="rounded-full border border-neutral-300 px-6 py-2.5 text-center text-sm font-medium">Continue shopping</Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (!items.length && !notice)
     return (
