@@ -1,7 +1,7 @@
-const ACCESS_TOKEN_KEY = "crm_access_token";
-const REFRESH_TOKEN_KEY = "crm_refresh_token";
-const USER_DATA_KEY = "crm_user_data";
-const CART_KEY = "else_cart";
+const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
+const USER_DATA_KEY = "user_data";
+const CART_KEY = "cart";
 
 const getStorage = () =>
   typeof window !== "undefined" ? window.localStorage : null;

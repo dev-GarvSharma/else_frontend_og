@@ -103,9 +103,12 @@ export default function Checkout() {
       coupon.type === "percentage"
         ? (subtotal * Number(coupon.value || 0)) / 100
         : Number(coupon.value || 0);
-    return subtotal >= Number(coupon.minOrder || 0)
-      ? Math.min(beforeCap, subtotal)
-      : 0;
+    const cappedDiscount = Math.min(
+      beforeCap,
+      subtotal,
+      Number(coupon.maxDiscount) > 0 ? Number(coupon.maxDiscount) : Infinity,
+    );
+    return subtotal >= Number(coupon.minOrder || 0) ? cappedDiscount : 0;
   }, [coupon, subtotal]);
   const shipping = subtotal - discount >= Number(import.meta.env.VITE_MINIMUM_CART_AMOUNT) ? 0 : Number(import.meta.env.VITE_DELIVERY_CHARGE || 0);
   const total = subtotal - discount + shipping;

@@ -21,6 +21,14 @@ const imageUrl = (path) => {
   const base = import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
   return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 };
+const paymentStatusStyle = (status) => {
+  const value = String(status || "pending").toLowerCase();
+  if (/paid|success|complete/.test(value))
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (/fail|declin|refund|cancel/.test(value))
+    return "border-rose-200 bg-rose-50 text-rose-800";
+  return "border-amber-200 bg-amber-50 text-amber-800";
+};
 
 function OrdersContent() {
   const [orders, setOrders] = useState([]);
@@ -121,8 +129,8 @@ function OrdersContent() {
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-medium">
                     {order.status || "Pending"}
                   </span>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs text-neutral-600">
-                    Payment: {order.paymentStatus || "Pending"}
+                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${paymentStatusStyle(order.paymentStatus)}`}>
+                    Payment · {order.paymentStatus || "Pending"}
                   </span>
                 </div>
               </div>
@@ -202,11 +210,17 @@ function OrdersContent() {
                   );
                 })}
               </div>
-              <div className="flex flex-wrap justify-between gap-3 border-t border-neutral-200 px-5 py-4 text-sm sm:px-6">
-                <p className="text-neutral-600">
-                  {order.paymentMethod || "Online payment"}
-                  {order.couponCode ? ` · Coupon ${order.couponCode}` : ""}
-                </p>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 px-5 py-4 text-sm sm:px-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
+                    {order.paymentMethod || "Online payment"}
+                  </span>
+                  {order.couponCode && (
+                    <span className="rounded-full border border-[#e8d9c8] bg-[#f8f2eb] px-3 py-1 text-xs font-medium text-[#725d4b]">
+                      Coupon · {order.couponCode}
+                    </span>
+                  )}
+                </div>
                 <p className="font-semibold">Total: {money(order.total)}</p>
               </div>
             </article>
