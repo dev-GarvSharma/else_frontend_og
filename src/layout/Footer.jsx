@@ -116,8 +116,8 @@ function Footer() {
         aria-label="ELSE"
         className="overflow-hidden bg-transparent px-[3.4vw] py-[1.5vw]"
       >
-        <p className="select-none whitespace-nowrap text-center text-[12vw] font-medium leading-[.78] tracking-[.075em] text-white">
-          ELSE
+        <p className="select-none whitespace-nowrap text-center text-[10vw] font-bold leading-[.78] tracking-[.075em] text-white opacity-30">
+          ELSE PERFUMES
         </p>
       </div>
     </footer>
