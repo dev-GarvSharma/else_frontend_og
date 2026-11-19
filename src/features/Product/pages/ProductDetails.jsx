@@ -22,6 +22,7 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
+import ScrollOnTop from "../../../component/ScrollOnTop";
 
 const defaultProduct = {
   brand: "ELSE",
@@ -40,6 +41,11 @@ const formatPrice = (value) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number(value) || 0);
+
+const dispatchDate = new Intl.DateTimeFormat("en-IN", {
+  day: "numeric",
+  month: "short",
+}).format(new Date(Date.now() + 24 * 60 * 60 * 1000));
 
 function Accord({ title, children, open = false, id, qa = false }) {
   const [expanded, setExpanded] = useState(open);
@@ -179,7 +185,6 @@ export default function ProductDetails() {
   const [slide, setSlide] = useState(0);
   const [liked, setLiked] = useState(false);
   const [cart, setCart] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const imageBase =
     import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
   const resolveImage = (path, fallback = bottleImage) => {
@@ -315,13 +320,6 @@ export default function ProductDetails() {
     if (sizes.length && !sizes.some((item) => item.ml === size))
       setSize(sizes[0].ml);
   }, [product]);
-
-  useEffect(() => {
-    const onScroll = () => setShowScrollTop(window.scrollY > 500);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   if (loading) return <ProductDetailsSkeleton />;
   if (loadError || !product)
@@ -461,12 +459,11 @@ export default function ProductDetails() {
                 </button>
               ))}
             </div>
-            {product.deliveryMessage && (
-              <p className="pd-delivery !inline-flex !items-center !gap-[5px]">
-                <PackageCheck size={14} /> {product.deliveryMessage}
+              <p className="!inline-flex !items-center !gap-2 !text-xs !font-bold !text-emerald-800 my-4">
+                <PackageCheck size={15} aria-hidden="true" />
+                Ships tomorrow, {dispatchDate}
               </p>
-            )}
-            <button className="pd-add mt-5" disabled={selectedSize?.outOfStock} onClick={() => {
+            <button className="pd-add" disabled={selectedSize?.outOfStock} onClick={() => {
               dispatch(addToCart({ ...product, name: productName, brand: productBrand, images: product?.images?.length ? product.images.map((image) => typeof image === "string" ? { path: image } : image) : [{ path: productImage }], variants: selectedVariant ? [selectedVariant] : product?.variants }));
               setCart(true);
             }}>
@@ -674,14 +671,6 @@ export default function ProductDetails() {
           </Accord>
         ))}
       </section>
-      <button
-        type="button"
-        className={`pd-scroll-top ${showScrollTop ? "is-visible" : ""}`}
-        aria-label="Scroll to top"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      >
-        <ArrowUp size={20} />
-      </button>
     </main>
   );
 }

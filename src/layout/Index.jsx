@@ -14,6 +14,7 @@ import {
   openAuthDialog,
 } from "../features/Auth/authSlice";
 import AuthDialog from "../features/Auth/AuthDialog";
+import ScrollOnTop from "../component/ScrollOnTop";
 
 function MobileTabBar() {
   const dispatch = useDispatch();
@@ -105,6 +106,7 @@ function Index() {
       <MobileTabBar />
       <Cart />
       <AuthDialog />
+       <ScrollOnTop />
     </div>
   );
 }
