@@ -3,10 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import {
+  loadCart,
   removeFromCart,
+  restoreGuestCart,
   setCartOpen,
   setCartQuantity,
 } from "../features/Cart/cartSlice";
+import { getIsLoggedIn } from "../features/Auth/authSlice";
 import { getAllProducts } from "../features/Homepage/api";
 import { getPromotions } from "../features/Product/api";
 import PromotionalGiftCard from "./PromotionalGiftCard";
@@ -42,6 +45,7 @@ export default function Cart() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [promotionalProducts, setPromotionalProducts] = useState([]);
   const { items = [], isOpen } = useSelector((state) => state.cart);
+  const isLoggedIn = useSelector(getIsLoggedIn);
   // Subtotal
   const subtotal = useMemo(
     () =>
@@ -95,6 +99,13 @@ export default function Cart() {
       }),
     );
   };
+
+  // Logged-in carts come from the API. Guests keep using their local cart.
+  useEffect(() => {
+    if (isLoggedIn) dispatch(loadCart());
+    else dispatch(restoreGuestCart());
+  }, [dispatch, isLoggedIn]);
+
   const fetchProducts = async () => {
     setProductsLoading(true);
     try {
