@@ -64,12 +64,65 @@ function loadRazorpay() {
   });
 }
 
+function CheckoutSkeleton() {
+  return (
+    <div
+      className="mt-4 grid animate-pulse gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
+      role="status"
+      aria-label="Loading checkout"
+    >
+      <div className="space-y-4">
+        <section className="rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
+          <div className="h-6 w-44 rounded bg-neutral-200" />
+          <div className="mt-4 space-y-3">
+            {[0, 1 , 2].map((item) => (
+              <div key={item} className="rounded-xl border border-neutral-100 p-4">
+                <div className="h-4 w-40 rounded bg-neutral-200" />
+                <div className="mt-3 h-3 w-4/5 rounded bg-neutral-100" />
+                <div className="mt-2 h-3 w-2/5 rounded bg-neutral-100" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 h-4 w-36 rounded bg-neutral-100" />
+        </section>
+      </div>
+
+      <aside className="h-fit rounded-2xl border border-black/10 bg-white p-5 sm:p-6">
+        <div className="h-6 w-40 rounded bg-neutral-200" />
+        <div className="mt-4 h-20 rounded-xl bg-neutral-100" />
+        <div className="mt-5 space-y-4">
+          {[0].map((item) => (
+            <div key={item} className="flex items-center gap-3">
+              <div className="h-16 w-16 shrink-0 rounded-lg bg-neutral-200" />
+              <div className="min-w-0 flex-1">
+                <div className="h-4 w-3/4 rounded bg-neutral-200" />
+                <div className="mt-2 h-3 w-1/2 rounded bg-neutral-100" />
+              </div>
+              <div className="h-4 w-12 rounded bg-neutral-200" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 space-y-3 border-t border-neutral-100 pt-5">
+          {[0, 1, 2].map((item) => (
+            <div key={item} className="flex justify-between gap-4">
+              <div className="h-3 w-20 rounded bg-neutral-100" />
+              <div className="h-3 w-14 rounded bg-neutral-200" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 h-12 rounded-full bg-neutral-200" />
+      </aside>
+    </div>
+  );
+}
+
 export default function Checkout() {
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.items);
   const isLoggedIn = useSelector(getIsLoggedIn);
   const user = useSelector(getCurrentUser);
   const [addresses, setAddresses] = useState([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [addressForm, setAddressForm] = useState(emptyAddress);
   const [editingAddressId, setEditingAddressId] = useState(null);
@@ -118,12 +171,19 @@ export default function Checkout() {
   }, [dispatch, isLoggedIn]);
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      setAddressesLoading(false);
+      return;
+    }
     let mounted = true;
     getAddresses()
       .then((result) => {
-        const list = responseData(result);
         if (!mounted) return;
+        if (!result?.success) {
+          setError(result?.message || "We couldn't load your saved addresses.");
+          return;
+        }
+        const list = responseData(result);
         const rows = Array.isArray(list) ? list : [];
         setAddresses(rows);
         const preferred = rows.find((address) => address.isDefault) || rows[0];
@@ -136,7 +196,8 @@ export default function Checkout() {
           setError(
             requestError.message || "We couldn't load your saved addresses.",
           ),
-      );
+      )
+      .finally(() => mounted && setAddressesLoading(false));
     return () => {
       mounted = false;
     };
@@ -460,7 +521,9 @@ export default function Checkout() {
         </p>
       )}
 
-      {items.length > 0 && (
+      {addressesLoading ? (
+        <CheckoutSkeleton />
+      ) : items.length > 0 && (
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-4">
             <section className="rounded-2xl border border-black/10 bg-white p-4 sm:p-5">
