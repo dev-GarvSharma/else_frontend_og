@@ -15,7 +15,7 @@ const slides = [
       "radial-gradient(circle at 50% 45%, #36c9bd 0%, #078e89 45%, #005e60 100%)",
     title: "AFFECTION",
     particleImage:
-      "https://elsecoffee.com/cdn/shop/files/Hazelnut.png?v=1793015089&width=300",
+      "https://ragecoffee.com/cdn/shop/files/Hazelnut.png?v=1793015089&width=300",
     url: "/products/irish-hazelnut",
   },
   {
@@ -27,7 +27,7 @@ const slides = [
       "radial-gradient(circle at 50% 45%, #a66ac5 0%, #713c91 48%, #39204f 100%)",
     title: "AFTER LIFE",
     particleImage:
-      "https://elsecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+      "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
     url: "/products/original-blend",
   },
   {
@@ -39,7 +39,7 @@ const slides = [
       "radial-gradient(circle at 50% 45%, #ff9a43 0%, #ed641b 48%, #9c3210 100%)",
     title: "OBSSESSION",
     particleImage:
-      "https://elsecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
+      "https://ragecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
     url: "/products/sparky-orange",
   },
   {
@@ -51,7 +51,7 @@ const slides = [
       "radial-gradient(circle at 50% 45%, #c42a3e 0%, #850b20 48%, #3e0614 100%)",
     title: "VANILLA",
     particleImage:
-      "https://elsecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
+      "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
     url: "/products/vanilla",
   },
 ];
