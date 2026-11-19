@@ -4,7 +4,7 @@ import SearchOverlay from "../component/SearchOverlay";
 import { useDispatch, useSelector } from "react-redux";
 import { setCartOpen } from "../features/Cart/cartSlice";
 import { getCurrentUser, getIsLoggedIn, openAuthDialog } from "../features/Auth/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function SearchIcon() {
   return (
@@ -70,12 +70,15 @@ function BagIcon() {
 }
 
 function Header() {
+  const { pathname } = useLocation();
+  const isHomePage = pathname === "/";
   const dispatch = useDispatch();
   const cartCount = useSelector((state) => state.cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0));
   const isLoggedIn = useSelector(getIsLoggedIn);
   const user = useSelector(getCurrentUser);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isTransparent = isHomePage && !isScrolled;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 44);
@@ -86,25 +89,33 @@ function Header() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-[#151515]">
-      <header className={`mx-auto flex w-full items-center bg-white px-5 text-[#171717] transition-[min-height,border-radius,box-shadow] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)] sm:px-8 lg:px-[8.5%] ${isScrolled ? "min-h-[60px] rounded-t-[26px] shadow-[0_8px_24px_rgba(0,0,0,.14)]" : "min-h-[68px] rounded-t-[42px] shadow-[0_4px_18px_rgba(0,0,0,0.04)]"}`}>
+      <div
+        className={`left-0 right-0 z-50 w-full transition-colors duration-700 ease-[cubic-bezier(.16,1,.3,1)] ${
+          isHomePage
+            ? isScrolled
+              ? "fixed top-0 bg-[#151515]"
+              : "absolute top-[44px] bg-transparent"
+            : "sticky top-0 bg-[#151515]"
+        }`}
+      >
+      <header className={`mx-auto flex w-full items-center px-5 transition-[min-height,border-radius,box-shadow,background-color,color] duration-500 ease-[cubic-bezier(.16,1,.3,1)] sm:px-8 lg:px-[8.5%] ${isTransparent ? "min-h-[68px] rounded-none bg-transparent text-white shadow-none" : `bg-white text-[#171717] ${isScrolled ? "min-h-[60px] rounded-t-[26px] shadow-[0_8px_24px_rgba(0,0,0,.14)]" : "min-h-[68px] rounded-t-[42px] shadow-[0_4px_18px_rgba(0,0,0,0.04)]"}`}`}>
         <nav
           aria-label="Main navigation"
           className="hidden items-center gap-6 whitespace-nowrap text-[12px] lg:flex lg:gap-8"
         >
           <Link
             to="perfumes"
-            className="transition-colors hover:text-[#a64d3e]"
+            className={`transition-colors ${isTransparent ? "hover:text-white/75" : "hover:text-[#a64d3e]"}`}
           >
             Perfumes
           </Link>
-          <Link to="#women" className="transition-colors hover:text-[#a64d3e]">
+          <Link to="#women" className={`transition-colors ${isTransparent ? "hover:text-white/75" : "hover:text-[#a64d3e]"}`}>
             Women
           </Link>
-          <Link to="#men" className="transition-colors hover:text-[#a64d3e]">
+          <Link to="#men" className={`transition-colors ${isTransparent ? "hover:text-white/75" : "hover:text-[#a64d3e]"}`}>
             Men
           </Link>
-          <Link to="#advent-calendar" className="transition-colors hover:text-[#a64d3e]">
+          <Link to="#advent-calendar" className={`transition-colors ${isTransparent ? "hover:text-white/75" : "hover:text-[#a64d3e]"}`}>
             Advent calendar
           </Link>
           <Link to="#sale" className="rounded-full bg-[#d52935] px-3 py-1 font-medium leading-none text-white">
@@ -126,7 +137,7 @@ function Header() {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Open search"
-            className="hidden h-[34px] w-[min(25vw,285px)] items-center gap-2 rounded-full bg-[#f3f3f3] px-3 text-left text-[#686868] lg:flex"
+            className={`hidden h-[34px] w-[min(25vw,285px)] items-center gap-2 rounded-full px-3 text-left lg:flex ${isTransparent ? "bg-white/15 text-white/80" : "bg-[#f3f3f3] text-[#686868]"}`}
           >
             <SearchIcon />
             <span className="min-w-0 flex-1 truncate text-[11px]">
@@ -137,7 +148,7 @@ function Header() {
             type="button"
             aria-label="Search"
             onClick={() => setSearchOpen(true)}
-            className="text-[#222] lg:hidden"
+            className={`lg:hidden ${isTransparent ? "text-white" : "text-[#222]"}`}
           >
             <SearchIcon />
           </button>
@@ -146,18 +157,18 @@ function Header() {
             aria-label={isLoggedIn ? "Open account" : "Sign in"}
             title={isLoggedIn ? user?.name || "Account" : "Sign in"}
             onClick={() => dispatch(openAuthDialog())}
-            className="hidden text-[#222] lg:block"
+            className={`hidden lg:block ${isTransparent ? "text-white" : "text-[#222]"}`}
           >
             <UserIcon />
           </button>
-          <button type="button" aria-label="Wishlist" className="hidden text-[#222] lg:block">
+          <button type="button" aria-label="Wishlist" className={`hidden lg:block ${isTransparent ? "text-white" : "text-[#222]"}`}>
             <HeartIcon />
           </button>
           <button
             type="button"
             aria-label="Shopping bag"
             onClick={() => dispatch(setCartOpen(true))}
-            className="relative hidden text-[#222] lg:block"
+            className={`relative hidden lg:block ${isTransparent ? "text-white" : "text-[#222]"}`}
           >
             <BagIcon />
             <span className="absolute -right-[7px] -top-[7px] flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#171717] px-1 text-[9px] font-medium text-white">
