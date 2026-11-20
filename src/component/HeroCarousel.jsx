@@ -1,61 +1,199 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Image1 from "../assets/else-affection-uniform.png";
-import Image2 from "../assets/else-after-life-uniform.png";
-import Image3 from "../assets/else-obsession-uniform.png";
-import Image4 from "../assets/else-still-uniform.png";
+import Image1 from "../assets/Affection.png";
+import Image2 from "../assets/Afterlife.png";
+import Image3 from "../assets/Obessed.png";
+import Image4 from "../assets/Still.png";
+import Image5 from "../assets/Four Fragrances with Botanical Accents.png";
 import { AreaChart, ChevronLeft, ChevronRight } from "lucide-react";
+
+// const slides = [
+//   {
+//     name: "AFFECTION",
+//     subtitle: "A little nutty. A lot of delicious.",
+//     color: "#0baca7",
+//     image: Image1,
+//     background:
+//       "radial-gradient(circle at 50% 45%, #36c9bd 0%, #078e89 45%, #005e60 100%)",
+//     title: "AFFECTION",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Hazelnut.png?v=1793015089&width=300",
+//     url: "/products/irish-hazelnut",
+//   },
+//   {
+//     name: "AFTER LIFE",
+//     subtitle: "Your everyday coffee upgrade.",
+//     color: "#79439b",
+//     image: Image2,
+//     background:
+//       "radial-gradient(circle at 50% 45%, #a66ac5 0%, #713c91 48%, #39204f 100%)",
+//     title: "DISCOVERY SET",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+//     url: "/products/original-blend",
+//   },
+//   {
+//     name: "OBSSESSION",
+//     subtitle: "A burst of bold flavour.",
+//     color: "#f47224",
+//     image: Image3,
+//     background:
+//       "radial-gradient(circle at 50% 45%, #ff9a43 0%, #ed641b 48%, #9c3210 100%)",
+//     title: "OBSSESSION",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
+//     url: "/products/sparky-orange",
+//   },
+//   {
+//     name: "STILL",
+//     subtitle: "Rich, smooth and irresistible.",
+//     color: "#8a0b1d",
+//     image: Image4,
+//     background:
+//       "radial-gradient(circle at 50% 45%, #c42a3e 0%, #850b20 48%, #3e0614 100%)",
+//     title: "STILL",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
+//     url: "/products/still",
+//   },
+//   {
+//     name: "DISCOVERY SET",
+//     subtitle: "A blend of four distinct flavours.",
+//     color: "#5d4037",
+//     image: Image5,
+//     background:
+//       "radial-gradient(circle at 50% 45%, #8d6e63 0%, #5d4037 48%, #3e2723 100%)",
+//     title: "DISCOVERY SET",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+//     url: "/products/four-fragrances-with-botanical-accents",
+//   },
+// ];
+
+// const slides = [
+//   {
+//     name: "AFFECTION",
+//     subtitle: "A little nutty. A lot of delicious.",
+//     color: "#d91e3c",
+//     image: Image1,
+//     background:
+//       "radial-gradient(circle at 50% 42%, #ff6577 0%, #d91e3c 48%, #65091d 100%)",
+//     title: "AFFECTION",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Hazelnut.png?v=1793015089&width=300",
+//     url: "/products/irish-hazelnut",
+//   },
+//   {
+//     name: "STILL",
+//     subtitle: "Rich, smooth and irresistible.",
+//     color: "#82b9df",
+//     image: Image4,
+//     background:
+//       "radial-gradient(circle at 50% 42%, #d5f0ff 0%, #82b9df 48%, #193d61 100%)",
+//     title: "STILL",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
+//     url: "/products/still",
+//   },
+//   {
+//     name: "AFTERLIFE",
+//     subtitle: "Your everyday coffee upgrade.",
+//     color: "#ad86d5",
+//     image: Image2,
+//     background:
+//       "radial-gradient(circle at 50% 42%, #e9d9ff 0%, #ad86d5 48%, #493064 100%)",
+//     title: "AFTERLIFE",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+//     url: "/products/original-blend",
+//   },
+//   {
+//     name: "OBESSED",
+//     subtitle: "A burst of bold flavour.",
+//     color: "#e99eae",
+//     image: Image3,
+//     background:
+//       "radial-gradient(circle at 50% 42%, #ffe0e4 0%, #e99eae 48%, #713444 100%)",
+//     title: "OBESSED",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
+//     url: "/products/sparky-orange",
+//   },
+//   {
+//     name: "DISCOVERY SET",
+//     subtitle: "A blend of four distinct flavours.",
+//     color: "#b99a80",
+//     image: Image5,
+//     background:
+//       "radial-gradient(circle at 50% 42%, #e6c9ad 0%, #a77c60 48%, #40271e 100%)",
+//     title: "DISCOVERY SET",
+//     particleImage:
+//       "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+//     url: "/products/four-fragrances-with-botanical-accents",
+//   },
+// ];
 
 const slides = [
   {
     name: "AFFECTION",
     subtitle: "A little nutty. A lot of delicious.",
-    color: "#0baca7",
+    color: "#c51b38",
     image: Image1,
     background:
-      "radial-gradient(circle at 50% 45%, #36c9bd 0%, #078e89 45%, #005e60 100%)",
+      "radial-gradient(circle at 50% 42%, #e94b60 0%, #a90f2b 48%, #390613 100%)",
     title: "AFFECTION",
     particleImage:
       "https://ragecoffee.com/cdn/shop/files/Hazelnut.png?v=1793015089&width=300",
     url: "/products/irish-hazelnut",
   },
   {
-    name: "AFTER LIFE",
+    name: "STILL",
+    subtitle: "Rich, smooth and irresistible.",
+    color: "#6399c2",
+    image: Image4,
+    background:
+      "radial-gradient(circle at 50% 42%, #a8d3ed 0%, #477da9 48%, #142c49 100%)",
+    title: "STILL",
+    particleImage:
+      "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
+    url: "/products/still",
+  },
+  {
+    name: "AFTERLIFE",
     subtitle: "Your everyday coffee upgrade.",
-    color: "#79439b",
+    color: "#9468bd",
     image: Image2,
     background:
-      "radial-gradient(circle at 50% 45%, #a66ac5 0%, #713c91 48%, #39204f 100%)",
-    title: "AFTER LIFE",
+      "radial-gradient(circle at 50% 42%, #c5a0e5 0%, #8050a8 48%, #301a47 100%)",
+    title: "AFTERLIFE",
     particleImage:
       "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
     url: "/products/original-blend",
   },
   {
-    name: "OBSSESSION",
+    name: "OBESSED",
     subtitle: "A burst of bold flavour.",
-    color: "#f47224",
+    color: "#d77f94",
     image: Image3,
     background:
-      "radial-gradient(circle at 50% 45%, #ff9a43 0%, #ed641b 48%, #9c3210 100%)",
-    title: "OBSSESSION",
+      "radial-gradient(circle at 50% 42%, #eab1bd 0%, #bd637b 48%, #481b2a 100%)",
+    title: "OBESSED",
     particleImage:
       "https://ragecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
     url: "/products/sparky-orange",
   },
   {
-    name: "VANILLA",
-    subtitle: "Rich, smooth and irresistible.",
-    color: "#8a0b1d",
-    image: Image4,
+    name: "DISCOVERY SET",
+    subtitle: "A blend of four distinct flavours.",
+    color: "#98715c",
+    image: Image5,
     background:
-      "radial-gradient(circle at 50% 45%, #c42a3e 0%, #850b20 48%, #3e0614 100%)",
-    title: "VANILLA",
+      "radial-gradient(circle at 50% 42%, #c5a18a 0%, #79533f 48%, #291812 100%)",
+    title: "DISCOVERY SET",
     particleImage:
-      "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
-    url: "/products/vanilla",
+      "https://ragecoffee.com/cdn/shop/files/Bean.png?v=1793015090&width=300",
+    url: "/products/four-fragrances-with-botanical-accents",
   },
 ];
-
 export default function HeroCarousel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);

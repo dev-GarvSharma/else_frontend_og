@@ -208,7 +208,7 @@ function Home() {
   return (
     <div>
       <HeroCarousel />
-      <div className="my-10 px-6 sm:px-10 lg:px-12">
+      <div className="">
         <nav
           aria-label="Shop by category"
           className="flex w-full items-start justify-between gap-1 overflow-x-auto px-2 py-2 sm:justify-center sm:gap-7 sm:px-8 sm:py-3"
