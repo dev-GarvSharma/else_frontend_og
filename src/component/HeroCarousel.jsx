@@ -146,13 +146,13 @@ const slides = [
     url: "/products/irish-hazelnut",
   },
   {
-    name: "STILL",
+    name: "ELSE STILL",
     subtitle: "Rich, smooth and irresistible.",
     color: "#6399c2",
     image: Image4,
     background:
       "radial-gradient(circle at 50% 42%, #a8d3ed 0%, #477da9 48%, #142c49 100%)",
-    title: "STILL",
+    title: "S T I L L",
     particleImage:
       "https://ragecoffee.com/cdn/shop/files/Chocolate.png?v=1793015088&width=300",
     url: "/products/still",
@@ -170,13 +170,13 @@ const slides = [
     url: "/products/original-blend",
   },
   {
-    name: "OBESSED",
+    name: "OBSESSION",
     subtitle: "A burst of bold flavour.",
     color: "#d77f94",
     image: Image3,
     background:
       "radial-gradient(circle at 50% 42%, #eab1bd 0%, #bd637b 48%, #481b2a 100%)",
-    title: "OBESSED",
+    title: "OBSESSION",
     particleImage:
       "https://ragecoffee.com/cdn/shop/files/Orange.png?v=1793015089&width=300",
     url: "/products/sparky-orange",

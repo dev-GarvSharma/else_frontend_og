@@ -58,6 +58,7 @@ export const getHttpFormHeaders = () => {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
+    "X-Session-Client": "storefront",
 
     // Optional: enable only if your API requires it.
     // "ngrok-skip-browser-warning": "true",
@@ -88,6 +89,7 @@ export const getHttpFileFormHeaders = () => {
 
   const headers = {
     Accept: "application/json",
+    "X-Session-Client": "storefront",
   };
 
   if (token) {
@@ -204,6 +206,7 @@ export const axiosClient = axios.create({
   withCredentials: true,
   headers: {
     Accept: "application/json",
+    "X-Session-Client": "storefront",
   },
 });
 
@@ -224,6 +227,7 @@ const refreshClient = axios.create({
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
+    "X-Session-Client": "storefront",
   },
 
   withCredentials: true,
