@@ -133,6 +133,7 @@ export default function Checkout() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [paymentStatusLoading, setPaymentStatusLoading] = useState(false);
   const [confirmedTotals, setConfirmedTotals] = useState(null);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
 
@@ -349,6 +350,8 @@ export default function Checkout() {
         },
         theme: { color: "#171717" },
         handler: async (paymentResponse) => {
+          setPaymentStatusLoading(true);
+          setError("");
           try {
             const verified = await verifyPayment(order.id, paymentResponse);
             if (!verified?.success)
@@ -358,6 +361,7 @@ export default function Checkout() {
             setOrderConfirmation(responseData(verified) || order);
             dispatch(clearCart());
           } catch (requestError) {
+            setPaymentStatusLoading(false);
             setError(
               requestError.message || "We couldn't verify this payment.",
             );
@@ -481,6 +485,24 @@ export default function Checkout() {
       </main>
     );
   }
+
+  if (paymentStatusLoading)
+    return (
+      <main
+        className="grid min-h-[55vh] place-items-center px-5 py-16 text-center text-[#171717]"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="max-w-md">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-neutral-200 border-t-[#171717]" />
+          <h1 className="mt-6 text-2xl font-medium">Updating your order status</h1>
+          <p className="mt-2 text-sm leading-6 text-neutral-600">
+            Your payment response was received. Please wait while we confirm
+            your order. This may take a few moments.
+          </p>
+        </div>
+      </main>
+    );
 
   if (!items.length && !notice)
     return (
