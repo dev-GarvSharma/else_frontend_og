@@ -91,12 +91,13 @@ function Index() {
   const { pathname } = useLocation();
   const isProductPage = pathname.startsWith("/perfume/");
   const isProductsPage = pathname === "/perfumes";
+  const isCheckoutPage = pathname === "/checkout";
   return (
     <div className="flex flex-col min-h-screen bg-[#151515]">
       <FestiveBanner />
       <Header />
       <div
-        className={`relative z-10 -mb-12 rounded-b-[42px] bg-[#faf9f6] pb-20 lg:pb-0 ${isProductPage || isProductsPage ? "overflow-visible" : "overflow-hidden"}`}
+        className={`relative z-10 -mb-12 rounded-b-[42px] bg-[#faf9f6] pb-20 lg:pb-0 ${isProductPage || isProductsPage || isCheckoutPage ? "overflow-visible" : "overflow-hidden"}`}
       >
         <Outlet />
       </div>

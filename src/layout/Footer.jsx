@@ -1,9 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const footerLinks = {
-  Menu: ["Home", "Shop", "Our story", "Contact us"],
+  Menu: ["Home", "Perfumes", "Our story", "Contact us"],
   "Quick links": [
-    "Search",
     "FAQs",
     "Privacy policy",
     "Shipping policy",
@@ -51,14 +51,23 @@ function Footer() {
             <ul className="space-y-2.5">
               {links.map((link) => (
                 <li key={link}>
-                  <a
-                    href={
-                      link === "Home" ? "/" : link === "Shop" ? "/shop" : "#"
-                    }
-                    className="text-[14px] text-white/75 transition-colors hover:text-white"
-                  >
-                    {link}
-                  </a>
+                  {link === "Contact us" ? (
+                    <Link to="/contact" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "Shipping policy" ? (
+                    <Link to="/shipping-policy" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "Returns & refunds" ? (
+                    <Link to="/refund-policy" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "Terms & conditions" ? (
+                    <Link to="/terms-and-conditions" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "Privacy policy" ? (
+                    <Link to="/privacy-policy" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "FAQs" ? (
+                    <Link to="/faqs" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : link === "Home" ? (
+                    <Link to="/" className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  ) : (
+                    <Link to={link} className="text-[14px] text-white/75 transition-colors hover:text-white">{link}</Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -69,7 +78,7 @@ function Footer() {
           <h2 className="mb-5 text-[17px] font-medium">Our store</h2>
           <address className="space-y-1 text-[14px] not-italic leading-6 text-white/75">
             <p>ELSE Fragrance Studio</p>
-            <p>New Delhi, India</p>
+            <p>Delhi, Paharganj</p>
             <p>Zip Code: 110001</p>
             <p>Phone: +91 98765 43210</p>
             <p>
@@ -94,20 +103,6 @@ function Footer() {
             >
               Designed & Developed by GARV
             </a>
-          </div>
-          <div className="flex flex-wrap gap-1.5 text-[9px] font-semibold">
-            <span className="border border-white/40 px-2 py-1 text-white">
-              VISA
-            </span>
-            <span className="border border-white/40 px-2 py-1 text-white">
-              MASTER CARD
-            </span>
-            <span className="border border-white/40 px-2 py-1 text-white">
-              UPI
-            </span>
-            <span className="border border-white/40 px-2 py-1 text-white">
-              RUPAY
-            </span>
           </div>
         </div>
       </div>

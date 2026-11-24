@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
   MapPin,
   ShieldCheck,
   Tag,
@@ -36,6 +39,77 @@ const emptyAddress = {
   country: "IN",
   isDefault: false,
 };
+export const indianStates = [
+  { id: 1, name: "Andhra Pradesh" },
+  { id: 2, name: "Arunachal Pradesh" },
+  { id: 3, name: "Assam" },
+  { id: 4, name: "Bihar" },
+  { id: 5, name: "Chhattisgarh" },
+  { id: 6, name: "Goa" },
+  { id: 7, name: "Gujarat" },
+  { id: 8, name: "Haryana" },
+  { id: 9, name: "Himachal Pradesh" },
+  { id: 10, name: "Jharkhand" },
+  { id: 11, name: "Karnataka" },
+  { id: 12, name: "Kerala" },
+  { id: 13, name: "Madhya Pradesh" },
+  { id: 14, name: "Maharashtra" },
+  { id: 15, name: "Manipur" },
+  { id: 16, name: "Meghalaya" },
+  { id: 17, name: "Mizoram" },
+  { id: 18, name: "Nagaland" },
+  { id: 19, name: "Odisha" },
+  { id: 20, name: "Punjab" },
+  { id: 21, name: "Rajasthan" },
+  { id: 22, name: "Sikkim" },
+  { id: 23, name: "Tamil Nadu" },
+  { id: 24, name: "Telangana" },
+  { id: 25, name: "Tripura" },
+  { id: 26, name: "Uttar Pradesh" },
+  { id: 27, name: "Uttarakhand" },
+  { id: 28, name: "West Bengal" },
+  { id: 29, name: "Andaman and Nicobar Islands" },
+  { id: 30, name: "Chandigarh" },
+  { id: 31, name: "Dadra and Nagar Haveli and Daman and Diu" },
+  { id: 32, name: "Delhi" },
+  { id: 33, name: "Jammu and Kashmir" },
+  { id: 34, name: "Ladakh" },
+  { id: 35, name: "Lakshadweep" },
+  { id: 36, name: "Puducherry" },
+];
+const addressValidationSchema = Yup.object({
+  recipient: Yup.string()
+    .trim()
+    .min(2, "Enter the recipient’s full name.")
+    .max(80, "Name must be 80 characters or fewer.")
+    .matches(/^[\p{L}][\p{L}\s.'-]*$/u, "Name can contain letters, spaces, apostrophes, periods, or hyphens only.")
+    .required("Full name is required."),
+  phone: Yup.string()
+    .required("Phone number is required.")
+    .test("indian-phone", "Enter a valid 10-digit Indian phone number.", (value) =>
+      /^(?:\+?91)?[6-9]\d{9}$/.test((value || "").replace(/[\s()-]/g, "")),
+    ),
+  line1: Yup.string()
+    .trim()
+    .min(5, "Enter a complete street address.")
+    .max(150, "Address must be 150 characters or fewer.")
+    .required("Address line 1 is required."),
+  line2: Yup.string().trim().max(150, "Address must be 150 characters or fewer."),
+  city: Yup.string()
+    .trim()
+    .min(2, "Enter a valid city.")
+    .max(80, "City must be 80 characters or fewer.")
+    .matches(/^[\p{L}][\p{L}\s.'-]*$/u, "City can contain letters.")
+    .required("City is required."),
+  state: Yup.string()
+    .oneOf(indianStates.map(({ name }) => name), "Choose a state or union territory from the list.")
+    .required("State is required."),
+  postalCode: Yup.string()
+    .matches(/^[1-9][0-9]{5}$/, "Enter a valid 6-digit PIN code.")
+    .required("PIN code is required."),
+  country: Yup.string().oneOf(["IN"], "Choose India as the country."),
+  isDefault: Yup.boolean(),
+});
 const responseData = (result) => result?.data?.data;
 const money = (amount) =>
   `₹${Number(amount || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -124,7 +198,9 @@ export default function Checkout() {
   const [addresses, setAddresses] = useState([]);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState("");
-  const [addressForm, setAddressForm] = useState(emptyAddress);
+  const [stateMenuOpen, setStateMenuOpen] = useState(false);
+  const [stateMenuAbove, setStateMenuAbove] = useState(false);
+  const stateMenuRef = useRef(null);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [couponInput, setCouponInput] = useState("");
@@ -136,6 +212,75 @@ export default function Checkout() {
   const [paymentStatusLoading, setPaymentStatusLoading] = useState(false);
   const [confirmedTotals, setConfirmedTotals] = useState(null);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
+  const addressFormik = useFormik({
+    initialValues: emptyAddress,
+    validationSchema: addressValidationSchema,
+    onSubmit: async (values, { resetForm }) => {
+      setBusy(true);
+      setError("");
+      try {
+        const address = {
+          ...values,
+          recipient: values.recipient.trim(),
+          phone: values.phone.trim(),
+          line1: values.line1.trim(),
+          line2: values.line2.trim(),
+          city: values.city.trim(),
+          postalCode: values.postalCode.trim(),
+        };
+        const result = editingAddressId
+          ? await updateAddress(editingAddressId, address)
+          : await addAddress({
+              ...address,
+              isDefault: addresses.length === 0 || address.isDefault,
+            });
+        const saved = responseData(result);
+        if (!result?.success || !saved?.id)
+          throw new Error(result?.message || "We couldn't save this address.");
+        setAddresses((previous) =>
+          editingAddressId
+            ? previous.map((item) => (item.id === saved.id ? saved : item))
+            : [saved, ...previous],
+        );
+        setSelectedAddressId(saved.id);
+        setShowAddressForm(false);
+        setEditingAddressId(null);
+        setStateMenuOpen(false);
+        setNotice("Address saved.");
+        resetForm({ values: emptyAddress });
+      } catch (requestError) {
+        setError(requestError.message || "We couldn't save this address.");
+      } finally {
+        setBusy(false);
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (!stateMenuOpen) return undefined;
+    const closeOnOutsideClick = (event) => {
+      if (!stateMenuRef.current?.contains(event.target)) setStateMenuOpen(false);
+    };
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setStateMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [stateMenuOpen]);
+
+  const toggleStateMenu = () => {
+    if (stateMenuOpen) {
+      setStateMenuOpen(false);
+      return;
+    }
+    const bounds = stateMenuRef.current?.getBoundingClientRect();
+    setStateMenuAbove(Boolean(bounds && window.innerHeight - bounds.bottom < 260 && bounds.top > 260));
+    setStateMenuOpen(true);
+  };
 
   const selectedAddress = addresses.find(
     (address) => address.id === selectedAddressId,
@@ -207,50 +352,20 @@ export default function Checkout() {
   useEffect(() => {
     if (!user?.name && !user?.phone) return undefined;
     const timer = window.setTimeout(() => {
-      setAddressForm((form) => ({
-        ...form,
-        recipient: form.recipient || user.name || "",
-        phone: form.phone || user.phone || "",
+      addressFormik.setValues((values) => ({
+        ...values,
+        recipient: values.recipient || user.name || "",
+        phone: values.phone || user.phone || "",
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [user]);
+  }, [user, addressFormik.setValues]);
 
   const beginAddressEdit = (address) => {
     setEditingAddressId(address.id);
-    setAddressForm({ ...emptyAddress, ...address });
+    addressFormik.resetForm({ values: { ...emptyAddress, ...address } });
     setShowAddressForm(true);
     setError("");
-  };
-
-  const saveAddress = async (event) => {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    try {
-      const result = editingAddressId
-        ? await updateAddress(editingAddressId, addressForm)
-        : await addAddress({
-            ...addressForm,
-            isDefault: addresses.length === 0 || addressForm.isDefault,
-          });
-      const saved = responseData(result);
-      if (!result?.success || !saved?.id)
-        throw new Error(result?.message || "We couldn't save this address.");
-      setAddresses((previous) =>
-        editingAddressId
-          ? previous.map((item) => (item.id === saved.id ? saved : item))
-          : [saved, ...previous],
-      );
-      setSelectedAddressId(saved.id);
-      setShowAddressForm(false);
-      setEditingAddressId(null);
-      setNotice("Address saved.");
-    } catch (requestError) {
-      setError(requestError.message || "We couldn't save this address.");
-    } finally {
-      setBusy(false);
-    }
   };
 
   const applyCoupon = async (event) => {
@@ -599,12 +714,15 @@ export default function Checkout() {
                   ))}
                   <button
                     onClick={() => {
-                      setAddressForm({
-                        ...emptyAddress,
-                        recipient: user?.name || "",
-                        phone: user?.phone || "",
+                      addressFormik.resetForm({
+                        values: {
+                          ...emptyAddress,
+                          recipient: user?.name || "",
+                          phone: user?.phone || "",
+                        },
                       });
                       setEditingAddressId(null);
+                      setStateMenuOpen(false);
                       setShowAddressForm(true);
                     }}
                     className="mt-2 text-sm font-medium underline underline-offset-4"
@@ -615,7 +733,8 @@ export default function Checkout() {
               )}
               {showAddressForm && (
                 <form
-                  onSubmit={saveAddress}
+                  onSubmit={addressFormik.handleSubmit}
+                  noValidate
                   className="mt-3 grid gap-3 sm:grid-cols-2"
                 >
                   {[
@@ -632,45 +751,105 @@ export default function Checkout() {
                       className={`text-sm font-medium ${["line1", "line2"].includes(name) ? "sm:col-span-2" : ""}`}
                     >
                       {label}
-                      <input
-                        required={!["line2"].includes(name)}
-                        name={name}
-                        value={addressForm[name] || ""}
-                        onChange={(event) =>
-                          setAddressForm((form) => ({
-                            ...form,
-                            [name]: event.target.value,
-                          }))
-                        }
-                        autoComplete={
-                          name === "postalCode"
-                            ? "postal-code"
-                            : "shipping " + name
-                        }
-                        className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2.5 font-normal outline-none focus:border-neutral-800"
-                      />
+                      {name === "state" ? (
+                        <div ref={stateMenuRef} className="relative mt-1">
+                          <button
+                            type="button"
+                            aria-label="State or union territory"
+                            aria-haspopup="listbox"
+                            aria-expanded={stateMenuOpen}
+                            aria-required="true"
+                            aria-invalid={Boolean(addressFormik.touched.state && addressFormik.errors.state)}
+                            aria-describedby={addressFormik.touched.state && addressFormik.errors.state ? "state-error" : undefined}
+                            aria-controls="checkout-state-options"
+                            onClick={toggleStateMenu}
+                            className={`flex h-10 w-full items-center justify-between rounded-lg border bg-white px-3 text-left font-normal outline-none focus:ring-2 focus:ring-neutral-200 ${addressFormik.touched.state && addressFormik.errors.state ? "border-red-600" : "border-neutral-300 focus:border-neutral-800"}`}
+                          >
+                            <span className={addressFormik.values.state ? "text-neutral-900" : "text-neutral-500"}>
+                              {addressFormik.values.state || "Select a state or union territory"}
+                            </span>
+                            <ChevronDown size={16} className={`shrink-0 text-neutral-500 transition-transform ${stateMenuOpen ? "rotate-180" : ""}`} />
+                          </button>
+                          {stateMenuOpen && (
+                            <div
+                              id="checkout-state-options"
+                              role="listbox"
+                              aria-label="Indian states and union territories"
+                              className={`absolute z-50 max-h-60 w-full overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-xl ${stateMenuAbove ? "bottom-full mb-1" : "top-full mt-1"}`}
+                            >
+                              {addressFormik.values.state && !indianStates.some((state) => state.name === addressFormik.values.state) && (
+                                <button
+                                  type="button"
+                                  role="option"
+                                  aria-selected="true"
+                                  onClick={() => {
+                                    addressFormik.setFieldValue("state", addressFormik.values.state);
+                                    addressFormik.setFieldTouched("state", true, false);
+                                    setStateMenuOpen(false);
+                                  }}
+                                  className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none"
+                                >{addressFormik.values.state}</button>
+                              )}
+                              {indianStates.map((state) => (
+                                <button
+                                  key={state.id}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={addressFormik.values.state === state.name}
+                                  onClick={() => {
+                                    addressFormik.setFieldValue("state", state.name);
+                                    addressFormik.setFieldTouched("state", true, false);
+                                    setStateMenuOpen(false);
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none ${addressFormik.values.state === state.name ? "bg-neutral-100 font-medium" : ""}`}
+                                >{state.name}</button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          name={name}
+                          id={name}
+                          value={addressFormik.values[name] || ""}
+                          onChange={(event) => {
+                            addressFormik.handleChange(event);
+                            addressFormik.setFieldTouched(name, true, false);
+                          }}
+                          onBlur={addressFormik.handleBlur}
+                          aria-invalid={Boolean(addressFormik.touched[name] && addressFormik.errors[name])}
+                          aria-describedby={addressFormik.touched[name] && addressFormik.errors[name] ? `${name}-error` : undefined}
+                          autoComplete={
+                            name === "postalCode"
+                              ? "postal-code"
+                              : "shipping " + name
+                          }
+                          className={`mt-1 w-full rounded-lg border px-3 py-2.5 font-normal outline-none focus:border-neutral-800 ${addressFormik.touched[name] && addressFormik.errors[name] ? "border-red-600" : "border-neutral-300"}`}
+                        />
+                      )}
+                      {(addressFormik.touched[name] || (name === "state" && addressFormik.submitCount > 0)) && addressFormik.errors[name] && (
+                        <span id={`${name}-error`} role="alert" className="mt-1 block text-xs font-normal text-red-700">
+                          {addressFormik.errors[name]}
+                        </span>
+                      )}
                     </label>
                   ))}
                   <label className="flex items-center gap-2 text-sm sm:col-span-2">
                     <input
                       type="checkbox"
-                      checked={Boolean(addressForm.isDefault)}
-                      onChange={(event) =>
-                        setAddressForm((form) => ({
-                          ...form,
-                          isDefault: event.target.checked,
-                        }))
-                      }
+                      checked={Boolean(addressFormik.values.isDefault)}
+                      onChange={(event) => addressFormik.setFieldValue("isDefault", event.target.checked)}
                       className="accent-[#171717]"
                     />{" "}
                     Set as default address
                   </label>
                   <div className="flex gap-3 sm:col-span-2">
                     <button
-                      disabled={busy}
+                      disabled={busy || addressFormik.isSubmitting}
                       className="rounded-full bg-[#171717] px-5 py-2.5 text-sm text-white disabled:opacity-50"
                     >
-                      {busy ? "Saving…" : "Save address"}
+                      {busy || addressFormik.isSubmitting ? "Saving…" : "Save address"}
                     </button>
                     {addresses.length > 0 && (
                       <button

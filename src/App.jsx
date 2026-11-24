@@ -10,6 +10,12 @@ import NotFound from "./component/NotFound";
 import Checkout from "./features/Checkout/pages/Checkout";
 import Orders from "./features/Account/pages/Orders";
 import Addresses from "./features/Account/pages/Addresses";
+import Contact from "./features/Contact/pages/Contact";
+import ShippingPolicy from "./features/Contact/pages/ShippingPolicy";
+import RefundPolicy from "./features/Contact/pages/RefundPolicy";
+import TermsAndConditions from "./features/Contact/pages/TermsAndConditions";
+import PrivacyPolicy from "./features/Contact/pages/PrivacyPolicy";
+import FAQs from "./features/Contact/pages/FAQs";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -36,6 +42,12 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="account/orders" element={<Orders />} />
           <Route path="account/addresses" element={<Addresses />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="shipping-policy" element={<ShippingPolicy />} />
+          <Route path="refund-policy" element={<RefundPolicy />} />
+          <Route path="terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="faqs" element={<FAQs />} />
         </Route>
       </Routes>
     </Router>
