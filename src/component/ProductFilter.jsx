@@ -34,6 +34,11 @@ export default function ProductFilter({ filters = DEFAULT_FILTERS, onChange = no
   const [panelTab, setPanelTab] = useState("");
   const priceRangeChanged = useRef(false);
   const noteChanged = useRef(false);
+  const syncedFilterValues = useRef({
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    note: filters.note,
+  });
 
   useEffect(() => {
     let active = true;
@@ -60,6 +65,23 @@ export default function ProductFilter({ filters = DEFAULT_FILTERS, onChange = no
     }, 350);
     return () => window.clearTimeout(timer);
   }, [note, onChange]);
+
+  useEffect(() => {
+    const previous = syncedFilterValues.current;
+    if (previous.minPrice !== filters.minPrice || previous.maxPrice !== filters.maxPrice) {
+      priceRangeChanged.current = false;
+      setPriceRange([filters.minPrice, filters.maxPrice]);
+    }
+    if (previous.note !== filters.note) {
+      noteChanged.current = false;
+      setNote(filters.note);
+    }
+    syncedFilterValues.current = {
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      note: filters.note,
+    };
+  }, [filters.minPrice, filters.maxPrice, filters.note]);
 
   const hasFilters = filters.categorySlug || filters.note || filters.minPrice > 0 || filters.maxPrice < MAX_PRICE || filters.sort !== "popularity";
   const clearAll = () => {

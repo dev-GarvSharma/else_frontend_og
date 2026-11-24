@@ -222,8 +222,8 @@ function Home() {
             </SkeletonGroup>
           ) : (
             category.map((category, index) => (
-              <a
-                href="perfumes"
+              <Link
+                to={`/perfumes?category=${encodeURIComponent(category.slug || "")}`}
                 key={category.id}
                 className="group flex w-[52px] shrink-0 flex-col items-center gap-1 text-center text-[9px] font-semibold text-[#171717] sm:w-auto sm:min-w-[72px] sm:gap-1.5 sm:text-[11px]"
               >
@@ -249,7 +249,7 @@ function Home() {
                 <span className="max-w-full truncate whitespace-nowrap transition-colors group-hover:text-[#a9182d] sm:max-w-none">
                   {category?.name || "Category"}
                 </span>
-              </a>
+              </Link>
             ))
           )}
         </nav>
