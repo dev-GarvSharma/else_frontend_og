@@ -18,7 +18,9 @@ export default function ProductCard({
   product = {},
   onAddToCart,
   onToggleWishlist,
+  onNavigate,
   compact = false,
+  compactSize = "default",
 }) {
   const [isSaved, setIsSaved] = useState(false);
   const [variantDialogOpen, setVariantDialogOpen] = useState(false);
@@ -111,13 +113,14 @@ export default function ProductCard({
   };
 
   if (compact) {
+    const searchCompact = compactSize === "search";
     return (
-      <article className="group relative flex min-h-[205px] w-full flex-col overflow-hidden rounded-xl border border-[#d9dfea] bg-white p-1.5 text-neutral-900 shadow-sm transition-shadow hover:shadow-md sm:min-h-[218px] sm:p-2">
+      <article className={`group relative flex w-full flex-col overflow-hidden rounded-xl border border-[#d9dfea] bg-white text-neutral-900 shadow-sm transition-shadow hover:shadow-md ${searchCompact ? "min-h-[248px] p-2" : "min-h-[205px] p-1.5 sm:min-h-[218px] sm:p-2"}`}>
         <div className="absolute left-1.5 top-1.5 z-10 flex max-w-[76%] flex-col items-start gap-1">
-          <span className="max-w-full truncate rounded-sm bg-[#171717] px-1.5 py-1 text-[7px] font-bold leading-none text-white sm:text-[8px]">
+          <span className={`max-w-full truncate rounded-sm bg-[#171717] px-1.5 py-1 font-bold leading-none text-white ${searchCompact ? "text-[9px]" : "text-[7px] sm:text-[8px]"}`}>
             {item?.labelText || `EXCLUSIVE ${discountPercentage}% OFF`}
           </span>
-          <span className="flex items-center gap-1 rounded-full border border-black/5 bg-white/95 px-1.5 py-0.5 text-[7px] font-semibold shadow-sm sm:text-[8px]">
+          <span className={`flex items-center gap-1 rounded-full border border-black/5 bg-white/95 px-1.5 py-0.5 font-semibold shadow-sm ${searchCompact ? "text-[9px]" : "text-[7px] sm:text-[8px]"}`}>
             {item?.category?.name || "Perfumes"}
             <Flame size={9} color="#F97316" />
           </span>
@@ -133,9 +136,10 @@ export default function ProductCard({
         </button>
         <Link
           to={`/perfume/${item.id}`}
-          className="flex min-h-0 flex-1 flex-col items-center px-1 pt-8 text-center"
+          onClick={onNavigate}
+          className={`flex min-h-0 flex-1 flex-col items-center px-1 text-center ${searchCompact ? "pt-9" : "pt-8"}`}
         >
-          <div className="grid h-[70px] w-full place-items-center sm:h-[76px]">
+          <div className={`grid w-full place-items-center ${searchCompact ? "h-[88px]" : "h-[70px] sm:h-[76px]"}`}>
             <img
               src={imageUrl}
               alt={`${item.brand || ""} ${item.name || ""} perfume bottle`}
@@ -149,7 +153,7 @@ export default function ProductCard({
             event.preventDefault();
             onAddToCart ? onAddToCart(item) : dispatch(addToCart(item));
           }}
-          className="mt-1 flex min-h-7 w-full items-center justify-center gap-1 rounded-md bg-neutral-900 px-1 text-[7px] text-white transition-colors hover:bg-neutral-700 sm:text-[8px]"
+          className={`mt-1 flex w-full items-center justify-center gap-1 rounded-md bg-neutral-900 px-1 text-white transition-colors hover:bg-neutral-700 ${searchCompact ? "min-h-8 text-[9px]" : "min-h-7 text-[7px] sm:text-[8px]"}`}
         >
           <span>From</span>
           {item.variants?.[0]?.compareAtPrice > item.variants?.[0]?.price && (

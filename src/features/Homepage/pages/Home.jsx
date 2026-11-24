@@ -211,12 +211,12 @@ function Home() {
       <div className="">
         <nav
           aria-label="Shop by category"
-          className="flex w-full items-start justify-between gap-1 overflow-x-auto px-2 py-2 sm:justify-center sm:gap-7 sm:px-8 sm:py-3"
+          className="flex w-full items-start gap-5 mt-3 overflow-x-auto px-2 py-2 justify-center sm:gap-7 sm:px-8 sm:py-3"
         >
           {categoryLoading ? (
             <SkeletonGroup
               count={4}
-              className="flex w-full items-start justify-between gap-3 sm:justify-center sm:gap-7"
+              className="flex w-full items-start gap-3 justify-center sm:gap-7"
             >
               <CategorySkeleton />
             </SkeletonGroup>
@@ -239,7 +239,7 @@ function Home() {
                       }
                       alt=""
                       aria-hidden="true"
-                      className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
+                      className="h-8 w-8 object-contain transition-transform duration-500 group-hover:scale-110 sm:h-11 sm:w-11"
                     />
                   </span>
                   <span className="absolute -bottom-1 hidden rounded-full border border-white bg-[#a9182d] px-2 py-0.5 text-[8px] font-bold leading-none tracking-[0.08em] text-white shadow-sm sm:block">
