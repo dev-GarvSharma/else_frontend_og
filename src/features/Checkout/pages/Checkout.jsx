@@ -592,11 +592,11 @@ export default function Checkout() {
               </div>
             </aside>
           </div>
-          <div className="flex flex-col gap-3 border-t border-neutral-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
-            <Link to="/account/orders" className="rounded-full bg-[#171717] px-6 py-2.5 text-center text-sm font-medium text-white">View my orders</Link>
-            <Link to="/perfumes" className="rounded-full border border-neutral-300 px-6 py-2.5 text-center text-sm font-medium">Continue shopping</Link>
-          </div>
         </section>
+        <div className="flex flex-col gap-3 border-t border-neutral-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
+          <Link to="/account/orders" className="rounded-full bg-[#171717] px-6 py-2.5 text-center text-sm font-medium text-white">View my orders</Link>
+          <Link to="/perfumes" className="rounded-full border border-neutral-300 px-6 py-2.5 text-center text-sm font-medium">Continue shopping</Link>
+        </div>
       </main>
     );
   }
@@ -674,36 +674,38 @@ export default function Checkout() {
                       key={address.id}
                       className={`flex items-start gap-3 rounded-xl border p-3 ${selectedAddressId === address.id ? "border-[#171717] bg-[#faf9f6]" : "border-neutral-200"}`}
                     >
-                      <input
-                        type="radio"
-                        name="address"
-                        value={address.id}
-                        checked={selectedAddressId === address.id}
-                        onChange={() => setSelectedAddressId(address.id)}
-                        className="mt-1 accent-[#171717]"
-                      />
-                      <div className="min-w-0 flex-1 text-sm leading-6">
-                        <div className="font-medium">
-                          {address.recipient}
-                          {address.isDefault && (
-                            <span className="ml-2 rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] uppercase tracking-wide">
-                              Default
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-neutral-600">
-                          {[
-                            address.line1,
-                            address.line2,
-                            address.city,
-                            address.state,
-                            address.postalCode,
-                          ]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </p>
-                        <p className="text-neutral-600">{address.phone}</p>
-                      </div>
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-3 text-sm leading-6">
+                        <input
+                          type="radio"
+                          name="address"
+                          value={address.id}
+                          checked={selectedAddressId === address.id}
+                          onChange={() => setSelectedAddressId(address.id)}
+                          className="mt-1 accent-[#171717]"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="font-medium">
+                            {address.recipient}
+                            {address.isDefault && (
+                              <span className="ml-2 rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] uppercase tracking-wide">
+                                Default
+                              </span>
+                            )}
+                          </span>
+                          <span className="block text-neutral-600">
+                            {[
+                              address.line1,
+                              address.line2,
+                              address.city,
+                              address.state,
+                              address.postalCode,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </span>
+                          <span className="block text-neutral-600">{address.phone}</span>
+                        </span>
+                      </label>
                       <button
                         onClick={() => beginAddressEdit(address)}
                         className="text-sm underline underline-offset-4"
