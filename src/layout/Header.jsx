@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import SearchOverlay from "../component/SearchOverlay";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,21 +33,6 @@ function UserIcon() {
     >
       <circle cx="12" cy="7.5" r="3.3" />
       <path d="M5.5 20v-1.7a6.5 6.5 0 0 1 13 0V20" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-[20px] w-[20px]"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-    >
-      <path d="M20.4 8.8c0 4.3-8.4 10-8.4 10s-8.4-5.7-8.4-10a4.2 4.2 0 0 1 8.4-1.1 4.2 4.2 0 0 1 8.4 1.1Z" />
     </svg>
   );
 }
@@ -160,9 +144,6 @@ function Header() {
             className={`hidden lg:block ${isTransparent ? "text-white" : "text-[#222]"}`}
           >
             <UserIcon />
-          </button>
-          <button type="button" aria-label="Wishlist" className={`hidden lg:block ${isTransparent ? "text-white" : "text-[#222]"}`}>
-            <HeartIcon />
           </button>
           <button
             type="button"

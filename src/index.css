@@ -687,13 +687,6 @@
   font-weight: 600;
   letter-spacing: -1.3px;
 }
-.pd-heart {
-  padding: 8px;
-  color: #777;
-}
-.pd-heart svg {
-  width: 21px;
-}
 .pd-rating {
   display: flex;
   align-items: center;

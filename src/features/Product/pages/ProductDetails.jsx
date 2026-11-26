@@ -183,7 +183,6 @@ export default function ProductDetails() {
   const [loadError, setLoadError] = useState(false);
   const [size, setSize] = useState("2ml");
   const [slide, setSlide] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [cart, setCart] = useState(false);
   const imageBase =
     import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
@@ -410,16 +409,6 @@ export default function ProductDetails() {
                   <a href="#reviews">({reviewCount} reviews)</a>
                 </div>
               </div>
-              <button
-                className="pd-heart"
-                aria-label="Add to wishlist"
-                onClick={() => setLiked(!liked)}
-              >
-                <Heart
-                  fill={liked ? "#c44526" : "none"}
-                  color={liked ? "#c44526" : "currentColor"}
-                />
-              </button>
             </div>
             <div className="pd-price">
               <strong>{selectedSize?.amount || "—"}</strong>

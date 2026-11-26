@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import {
   BatteryFull,
   Flame,
-  Heart,
   Radio,
   Star,
   StarHalf,
@@ -17,12 +16,10 @@ import { lockBodyScroll, unlockBodyScroll } from "../utils/bodyScrollLock";
 export default function ProductCard({
   product = {},
   onAddToCart,
-  onToggleWishlist,
   onNavigate,
   compact = false,
   compactSize = "default",
 }) {
-  const [isSaved, setIsSaved] = useState(false);
   const [variantDialogOpen, setVariantDialogOpen] = useState(false);
   const [variantDialogClosing, setVariantDialogClosing] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState(
@@ -76,11 +73,6 @@ export default function ProductCard({
     : 0;
   const rating = Math.min(5, Math.max(0, Number(item.ratingAverage) || 0));
 
-  const toggleWishlist = () => {
-    setIsSaved((saved) => !saved);
-    onToggleWishlist?.(item);
-  };
-
   const addSelectedVariant = (variant) => {
     const cartProduct = variant
       ? { ...item, selectedVariantId: variant.id, variants: [variant] }
@@ -125,15 +117,6 @@ export default function ProductCard({
             <Flame size={9} color="#F97316" />
           </span>
         </div>
-        <button
-          type="button"
-          onClick={toggleWishlist}
-          aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-          aria-pressed={isSaved}
-          className={`absolute right-1.5 top-1.5 z-20 grid h-6 w-6 place-items-center rounded-full border border-black/5 bg-white/90 text-neutral-500 shadow-sm ${isSaved ? "text-rose-600" : ""}`}
-        >
-          <Heart size={13} fill={isSaved ? "currentColor" : "none"} />
-        </button>
         <Link
           to={`/perfume/${item.id}`}
           onClick={onNavigate}
@@ -185,20 +168,6 @@ export default function ProductCard({
                 <Flame size={12} strokeWidth={1.8} color="#F97316" />
               </span>
             </div>
-            <button
-              type="button"
-              onClick={toggleWishlist}
-              aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-              aria-pressed={isSaved}
-              className={`absolute right-1 top-1 z-20 grid min-h-8 min-w-8 place-items-center rounded-full bg-white/85 text-[20px] text-[#555] shadow-sm transition-transform duration-150 hover:scale-110 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 ${isSaved ? "text-rose-600" : ""}`}
-            >
-              <Heart
-                size={18}
-                strokeWidth={1.7}
-                fill={isSaved ? "currentColor" : "none"}
-              />
-            </button>
-
             <div className="relative mx-auto mb-3 mt-12 flex h-32 w-full items-center justify-center sm:mb-4 sm:mt-12 sm:h-40 md:mb-6 md:mt-14 md:h-56">
               <div className="flex h-full w-full items-center justify-center bg-white [mix-blend-mode:multiply]">
                 <img
