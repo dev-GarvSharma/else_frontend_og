@@ -119,18 +119,6 @@ export default function Products() {
             />}
           </section>
         </div>
-
-        <section className="mx-auto mt-16 max-w-4xl border-t border-neutral-200 pt-8 text-sm leading-7 text-neutral-600 sm:mt-20">
-          <h2 className="font-serif text-2xl text-neutral-900">
-            Explore designer and niche perfume samples
-          </h2>
-          <p className="mt-3">
-            Discover a curated selection of authentic fragrances from the
-            world’s leading designer and niche houses. Every sample is poured
-            from an original bottle, so you can try a scent before choosing a
-            full-size fragrance.
-          </p>
-        </section>
       </div>
     </main>
   );

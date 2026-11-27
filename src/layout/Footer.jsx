@@ -89,8 +89,8 @@ function Footer() {
             </p>
           </address>
         </section>
-
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/30 pt-5 text-[11px] text-white/75 sm:col-span-2 lg:col-span-4">
+{/* 
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-5 text-[11px] text-white/75 sm:col-span-2 lg:col-span-4">
           <span>© ELSE Fragrance Co. 2026</span>
           <div
             className="flex items-center gap-4 text-[13px]"
@@ -104,7 +104,7 @@ function Footer() {
               Designed & Developed by GARV
             </a>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div

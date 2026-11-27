@@ -130,6 +130,9 @@ export default function ProductCard({
             />
           </div>
         </Link>
+        <div className="text-center text-xs font-semibold">
+          <h1>{item.name}</h1>
+        </div>
         <button
           type="button"
           onClick={(event) => {
